@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            background-color: #f2f2f2;
+        }
+        .green {
+            background-color: #28a745;
+            color: white;
+        }
+        .red {
+            background-color: #dc3545;
+            color: white;
+        }
+        #summary {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vehicle Data</h1>
+    <table id="vehicleData">
+        <thead>
+            <tr>
+                <th>Vehicle Number</th>
+                <th>Name Of Transport</th>
+                <th>Contact No</th>
+                <th>Un Laden Weight</th>
+                <th>Loaden Weight</th>
+                <th>Fitness Valid up to</th>
+                <th>Tax Valid up to</th>
+                <th>Insurance Valid up to</th>
+                <th>PUCC Valid up to</th>
+                <th>Permit Valid up to</th>
+                <th>File Path PDF</th>
+                <th>GPS Installed Status</th>
+                <th>Active Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data from Google Sheets will be inserted here -->
+        </tbody>
+    </table>
+
+    <div id="summary">
+        <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
+        <p><strong>Total Installed (Green):</strong> <span id="totalInstalled"></span></p>
+        <p><strong>Total Not Installed (Red):</strong> <span id="totalNotInstalled"></span></p>
+        <p><strong>Total Active (Green):</strong> <span id="totalActive"></span></p>
+        <p><strong>Total Not Active (Red):</strong> <span id="totalNotActive"></span></p>
+    </div>
+
+    <script>
+        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';  // Your Google Sheet ID
+        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
+
+        function fetchData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const rows = data.values;
+                    const table = document.getElementById('vehicleData').getElementsByTagName('tbody')[0];
+
+                    let totalEntries = 0;
+                    let totalInstalled = 0;
+                    let totalNotInstalled = 0;
+                    let totalActive = 0;
+                    let totalNotActive = 0;
+
+                    // Loop through the rows of data and add them to the table
+                    for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
+                        const row = rows[i];
+                        const newRow = table.insertRow();
+
+                        // Loop through each cell in the row and insert the data
+                        for (let j = 0; j < row.length; j++) {
+                            const cell = newRow.insertCell();
+                            cell.textContent = row[j];
+
+                            // Add color coding to GPS Installed Status and Active Status
+                            if (j === 11) {  // GPS Installed Status (column index 11)
+                                const status = row[j].toUpperCase();
+                                if (status === 'INSTALLED') {
+                                    cell.classList.add('green');
+                                    totalInstalled++;
+                                } else if (status === 'NOT INSTALLED') {
+                                    cell.classList.add('red');
+                                    totalNotInstalled++;
+                                }
+                            }
+
+                            if (j === 12) {  // Active Status (column index 12)
+                                const status = row[j].toUpperCase();
+                                if (status === 'ACTIVE') {
+                                    cell.classList.add('green');
+                                    totalActive++;
+                                } else if (status === 'NOT ACTIVE') {
+                                    cell.classList.add('red');
+                                    totalNotActive++;
+                                }
+                            }
+                        }
+
+                        totalEntries++;
+                    }
+
+                    // Display the counts in the summary section
+                    document.getElementById('totalEntries').textContent = totalEntries;
+                    document.getElementById('totalInstalled').textContent = totalInstalled;
+                    document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
+                    document.getElementById('totalActive').textContent = totalActive;
+                    document.getElementById('totalNotActive').textContent = totalNotActive;
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Fetch data when the page loads
+        window.onload = fetchData;
+    </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelled E-Pass Monthly Report</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #6200ea;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #bb86fc;
+            padding: 10px 20px;
+        }
+        nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+        nav a:hover {
+            color: #6200ea;
+        }
+        .container {
+            padding: 20px;
+        }
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #6200ea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cancelled E-Pass Monthly Report</h1>
+    </header>
+    <nav>
+        <a href="https://script.google.com/macros/s/AKfycbw5TEcdr6KjynUGldssJZGlGnS1llUxwuPmPzsuUhJrHBMfXquQjCZ0YioUBgYfpdMA/exec">ENTRY FORM</a>
+        <a href="DASHBOARD.HTML">All CANCELLED E PASS</a>
+        <a href="https://docs.google.com/spreadsheets/d/1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g/edit?usp=sharing">DISPATCH REPORT</a>
+    </nav>
+    <div class="container">
+        <h2>Cancelled E-Pass Monthly Count</h2>
+        
+        <!-- Chart Section -->
+        <div class="chart-container">
+            <div id="chart_div" style="width: 100%; height: 500px;"></div>
+        </div>
+        
+        <!-- Display Total Cancelled Passes -->
+        <div id="monthly_report" style="text-align: center; font-size: 20px; margin-top: 20px;">
+            <p><strong>Monthly Cancelled Passes:</strong></p>
+            <ul id="report_list"></ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 My Web Page</p>
+    </footer>
+
+    <script type="text/javascript">
+        // Load Google Charts
+        google.charts.load('current', {'packages':['corechart', 'bar']});
+        google.charts.setOnLoadCallback(fetchData);
+
+        // Function to fetch data from Google Sheets API
+        function fetchData() {
+            const sheetID = '1aL9xoygcQkROfE03FauhOTNdJepisMs7lHKQvdKt2MI';  // Your Google Sheet ID
+            const range = 'B2:D10000';  // Range of data to fetch (Date in B, Cancel pass number in D)
+            const apiKey = 'AIzaSyCAb2w8YjJEpUbjjC04X6CgUPh1r5QIvhc'; // Your API Key
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const rows = data.values;
+                    let monthlyData = {};  // Object to store the monthly counts of cancelled passes
+
+                    rows.forEach(row => {
+                        if (row[0] && row[2]) {
+                            const dateStr = row[0];
+                            const cancelledPass = row[2];
+
+                            // Parse the date string into a Date object
+                            const date = new Date(dateStr);
+                            
+                            // Get the first date of the month (01-mm-yyyy)
+                            const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+
+                            // Get the month-year in format (e.g. Jan-2025)
+                            const monthYear = monthStart.toLocaleString('default', { month: 'short', year: 'numeric' });
+
+                            if (monthlyData[monthYear]) {
+                                monthlyData[monthYear] += 1;  // Count each entry as 1 cancelled pass
+                            } else {
+                                monthlyData[monthYear] = 1;  // Initialize the count for this month
+                            }
+                        }
+                    });
+
+                    // Update the chart and the list with the monthly data
+                    updateMonthlyReport(monthlyData);
+                    drawChart(monthlyData);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Update the monthly report and the chart
+        function updateMonthlyReport(monthlyData) {
+            const reportList = document.getElementById('report_list');
+            reportList.innerHTML = '';  // Clear the previous list
+
+            for (const month in monthlyData) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${month}: ${monthlyData[month]} Cancelled Passes`;
+                reportList.appendChild(listItem);
+            }
+        }
+
+        // Draw the chart
+        function drawChart(monthlyData) {
+            // Prepare data for the chart
+            const chartData = [['Month', 'Cancelled Passes']];
+            for (const month in monthlyData) {
+                chartData.push([month, monthlyData[month]]);
+            }
+
+            var dataTable = google.visualization.arrayToDataTable(chartData);
+
+            var options = {
+                title: 'Cancelled Passes per Month',
+                chartArea: {width: '50%'},
+                hAxis: {
+                    title: 'Cancelled Passes',
+                    minValue: 0
+                },
+                vAxis: {
+                    title: 'Month'
+                }
+            };
+
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+            chart.draw(dataTable, options);
+        }
+    </script>
+</body>
+</html>
