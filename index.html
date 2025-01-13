@@ -68,14 +68,30 @@
         }
     </style>
     <script>
-        // JavaScript function to handle login logic
-        function handleLogin() {
+        // Load Google Sheets API
+        const API_KEY = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';
+        const SHEET_ID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';
+        const SHEET_NAME = 'user';
+
+        async function fetchSheetData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.values;
+        }
+
+        async function handleLogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === 'admin' && password === '12345') {
-                alert('Login Successful!');
-                // Redirect to home page or perform any action
+            const rows = await fetchSheetData();
+            const [headers, ...users] = rows;
+
+            const user = users.find(row => row[headers.indexOf('user_id')] === username && row[headers.indexOf('password')] === password);
+
+            if (user) {
+                alert(`Login Successful! Welcome, ${user[headers.indexOf('user_role')]}`);
+                // Redirect to home page
                 window.location.href = 'home_details.html';
             } else {
                 alert('Invalid credentials');
