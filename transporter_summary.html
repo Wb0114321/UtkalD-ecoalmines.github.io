@@ -48,14 +48,22 @@
                 .then(data => {
                     const rows = data.values;
                     const transporterCounts = {};
+                    let currentTransporter = '';  // To track the last valid transporter
 
                     // Skip header row and count vehicles for each transporter
                     for (let i = 1; i < rows.length; i++) {
-                        const transporter = rows[i][1]; // Column B (Transporter Name)
-                        if (transporterCounts[transporter]) {
-                            transporterCounts[transporter]++;
-                        } else {
-                            transporterCounts[transporter] = 1;
+                        const transporter = rows[i][1] ? rows[i][1].trim() : ''; // Column B (Transporter Name), trimming spaces
+                        if (transporter) {
+                            currentTransporter = transporter;  // Update last valid transporter
+                        }
+                        
+                        // If there's a vehicle number, increment count for the current transporter
+                        if (rows[i][0]) {
+                            if (transporterCounts[currentTransporter]) {
+                                transporterCounts[currentTransporter]++;
+                            } else {
+                                transporterCounts[currentTransporter] = 1;
+                            }
                         }
                     }
 
