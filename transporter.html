@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transporter Vehicles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            background-color: #f2f2f2;
+        }
+        .header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header input {
+            padding: 8px;
+            font-size: 16px;
+        }
+        .header button {
+            padding: 8px 12px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .header button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <input type="text" id="transporterName" placeholder="Enter Transporter Name">
+        <button onclick="fetchTransporterVehicles()">Search</button>
+    </div>
+    <h1>Transporter Vehicles</h1>
+    <table id="transporterVehicles">
+        <thead>
+            <tr>
+                <th>Vehicle Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Vehicle data will be inserted here -->
+        </tbody>
+    </table>
+    <p><strong>Total Vehicles:</strong> <span id="totalVehicles">0</span></p>
+
+    <script>
+        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Your Google Sheet ID
+        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Your API key
+
+        function fetchTransporterVehicles() {
+            const transporterName = document.getElementById('transporterName').value.trim();
+            if (!transporterName) {
+                alert('Please enter a transporter name.');
+                return;
+            }
+
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const rows = data.values;
+                    const tableBody = document.getElementById('transporterVehicles').getElementsByTagName('tbody')[0];
+                    tableBody.innerHTML = ''; // Clear previous results
+
+                    let count = 0;
+
+                    for (let i = 1; i < rows.length; i++) { // Skip header row
+                        const vehicleNumber = rows[i][0]; // Column A
+                        const transporter = rows[i][1]; // Column B
+
+                        if (transporter.toLowerCase() === transporterName.toLowerCase()) {
+                            const newRow = tableBody.insertRow();
+                            const cell = newRow.insertCell();
+                            cell.textContent = vehicleNumber;
+                            count++;
+                        }
+                    }
+
+                    // Update total vehicles count
+                    document.getElementById('totalVehicles').textContent = count;
+
+                    if (count === 0) {
+                        alert('No vehicles found for this transporter name.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    </script>
+</body>
+</html>
