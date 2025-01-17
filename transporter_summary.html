@@ -48,23 +48,33 @@
                 .then(data => {
                     const rows = data.values;
                     const transporterCounts = {};
-                    let currentTransporter = '';  // To track the last valid transporter
+                    let currentTransporter = '';  // Track the last valid transporter
+                    let vehicleCount = 0;  // Count of vehicles for the current transporter
 
                     // Skip header row and count vehicles for each transporter
                     for (let i = 1; i < rows.length; i++) {
-                        const transporter = rows[i][1] ? rows[i][1].trim() : ''; // Column B (Transporter Name), trimming spaces
+                        const transporter = rows[i][1] ? rows[i][1].trim() : ''; // Trim transporter name
+                        const vehicle = rows[i][0]; // Vehicle number
+
+                        // If transporter name exists, update the current transporter
                         if (transporter) {
-                            currentTransporter = transporter;  // Update last valid transporter
-                        }
-                        
-                        // If there's a vehicle number, increment count for the current transporter
-                        if (rows[i][0]) {
-                            if (transporterCounts[currentTransporter]) {
-                                transporterCounts[currentTransporter]++;
-                            } else {
-                                transporterCounts[currentTransporter] = 1;
+                            if (currentTransporter && vehicleCount > 0) {
+                                // Save count for the last transporter before updating to the new one
+                                transporterCounts[currentTransporter] = (transporterCounts[currentTransporter] || 0) + vehicleCount;
                             }
+                            currentTransporter = transporter;  // Update the last valid transporter
+                            vehicleCount = 0;  // Reset vehicle count for new transporter
                         }
+
+                        // Count the vehicles under the current transporter
+                        if (vehicle) {
+                            vehicleCount++;
+                        }
+                    }
+
+                    // Add the remaining vehicles count for the last transporter
+                    if (currentTransporter && vehicleCount > 0) {
+                        transporterCounts[currentTransporter] = (transporterCounts[currentTransporter] || 0) + vehicleCount;
                     }
 
                     // Update the UI
