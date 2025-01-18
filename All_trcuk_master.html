@@ -33,16 +33,28 @@
         th {
             background-color: #4CAF50;
             color: white;
-            width: 17%;
         }
         td {
             background-color: #f2f2f2;
-            width: 17%;
         }
         td.file-path {
             max-width: 11ch;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        td.expired {
+            background-color: #dc3545;
+            color: white;
+            cursor: pointer;
+        }
+        td.expired:hover::after {
+            content: "Expired";
+            position: absolute;
+            background-color: black;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
             white-space: nowrap;
         }
         .green {
@@ -53,22 +65,8 @@
             background-color: #dc3545;
             color: white;
         }
-        #summary {
-            margin-top: 20px;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 15px;
-            margin-top: 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .button:hover {
-            background-color: #0056b3;
+        .column-wide {
+            min-width: 17ch;
         }
     </style>
 </head>
@@ -77,22 +75,20 @@
         Total Transporters: <span id="totalTransporters"></span>, Total Vehicles: <span id="totalVehicles"></span>
     </div>
     <h1>Vehicle Data</h1>
-    <a href="transporter.html" class="button">View Transporter Vehicles</a>
-    <a href="transporter_summary.html" target="_blank">Transporter Summary</a>
     <table id="vehicleData">
         <thead>
             <tr>
                 <th>Vehicle Number</th>
                 <th>Name Of Transport</th>
                 <th>Contact No</th>
-                <th>Un Laden Weight</th>
-                <th>Loaden Weight</th>
-                <th>Fitness Valid up to</th>
-                <th>Tax Valid up to</th>
-                <th>Insurance Valid up to</th>
-                <th>PUCC Valid up to</th>
-                <th>Permit Valid up to</th>
-                <th>File Path PDF</th>
+                <th class="column-wide">Un Laden Weight</th>
+                <th class="column-wide">Loaden Weight</th>
+                <th class="column-wide">Fitness Valid up to</th>
+                <th class="column-wide">Tax Valid up to</th>
+                <th class="column-wide">Insurance Valid up to</th>
+                <th class="column-wide">PUCC Valid up to</th>
+                <th class="column-wide">Permit Valid up to</th>
+                <th class="file-path">File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
             </tr>
@@ -102,27 +98,19 @@
         </tbody>
     </table>
 
-    <div id="summary">
-        <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
-        <p><strong>Total Installed:</strong> <span id="totalInstalled"></span></p>
-        <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled"></span></p>
-        <p><strong>Total Active:</strong> <span id="totalActive"></span></p>
-        <p><strong>Total Not Active:</strong> <span id="totalNotActive"></span></p>
-    </div>
-
     <script>
-        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Your Google Sheet ID
-        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Your API key
+        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';  // Your Google Sheet ID
+        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
 
         function fetchData() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+            const today = new Date();
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     const rows = data.values;
                     const table = document.getElementById('vehicleData').getElementsByTagName('tbody')[0];
-                    const today = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
 
                     let totalEntries = 0;
                     let totalInstalled = 0;
@@ -133,12 +121,13 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
-                    for (let i = 1; i < rows.length; i++) {
+                    for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
                         const newRow = table.insertRow();
 
                         totalVehicles++;
-                        const transportName = row[1];
+
+                        const transportName = row[1]; // Column B (Transport Name)
                         if (transportCounts[transportName]) {
                             transportCounts[transportName]++;
                         } else {
@@ -149,20 +138,16 @@
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            if (j >= 5 && j <= 9) { // Expiry date columns
-                                const expiryDate = row[j];
-                                if (expiryDate < today) {
-                                    cell.classList.add('red');
-                                    cell.title = `${cell.textContent} expired.`;
-                                    alert(`${row[0]}: ${expiryDate} expired.`);
+                            // Highlight expired dates
+                            if ([5, 6, 7, 8, 9].includes(j)) { // Columns for expiry dates
+                                cell.classList.add('column-wide');
+                                const cellDate = new Date(row[j]);
+                                if (cellDate < today) {
+                                    cell.classList.add('expired');
                                 }
                             }
 
-                            if (j === 10) { // File Path PDF column
-                                cell.classList.add('file-path');
-                            }
-
-                            if (j === 11) { // GPS Installed Status column
+                            if (j === 11) {  // GPS Installed Status (column index 11)
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -173,7 +158,7 @@
                                 }
                             }
 
-                            if (j === 12) { // Active Status column
+                            if (j === 12) {  // Active Status (column index 12)
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -183,20 +168,17 @@
                                     totalNotActive++;
                                 }
                             }
+
+                            if (j === 10) { // File Path PDF
+                                cell.classList.add('file-path');
+                            }
                         }
+
                         totalEntries++;
                     }
 
-                    document.getElementById('totalEntries').textContent = totalEntries;
-                    document.getElementById('totalInstalled').textContent = totalInstalled;
-                    document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
-                    document.getElementById('totalActive').textContent = totalActive;
-                    document.getElementById('totalNotActive').textContent = totalNotActive;
-
-                    document.getElementById('totalVehicles').textContent = totalVehicles;
                     document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
-
-                    localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
+                    document.getElementById('totalVehicles').textContent = totalVehicles;
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
