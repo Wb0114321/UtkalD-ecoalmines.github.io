@@ -37,12 +37,6 @@
         td {
             background-color: #f2f2f2;
         }
-        td.file-path {
-            max-width: 11ch;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
         .green {
             background-color: #28a745;
             color: white;
@@ -68,9 +62,6 @@
         .button:hover {
             background-color: #0056b3;
         }
-        .column-wide {
-            min-width: 17ch;
-        }
     </style>
 </head>
 <body>
@@ -86,14 +77,14 @@
                 <th>Vehicle Number</th>
                 <th>Name Of Transport</th>
                 <th>Contact No</th>
-                <th class="column-wide">Un Laden Weight</th>
-                <th class="column-wide">Loaden Weight</th>
-                <th class="column-wide">Fitness Valid up to</th>
-                <th class="column-wide">Tax Valid up to</th>
-                <th class="column-wide">Insurance Valid up to</th>
-                <th class="column-wide">PUCC Valid up to</th>
-                <th class="column-wide">Permit Valid up to</th>
-                <th class="file-path">File Path PDF</th>
+                <th>Un Laden Weight</th>
+                <th>Loaden Weight</th>
+                <th>Fitness Valid up to</th>
+                <th>Tax Valid up to</th>
+                <th>Insurance Valid up to</th>
+                <th>PUCC Valid up to</th>
+                <th>Permit Valid up to</th>
+                <th>File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
             </tr>
@@ -133,6 +124,8 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
+                    const today = new Date();
+
                     for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
                         const newRow = table.insertRow();
@@ -146,9 +139,20 @@
                             transportCounts[transportName] = 1;
                         }
 
+                        let comment = "";
+
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
+
+                            if (j >= 5 && j <= 9) {  // Expiry date columns
+                                const expiryDate = new Date(row[j]);
+                                if (expiryDate < today) {
+                                    cell.classList.add('red');
+                                    comment += `${document.querySelectorAll('th')[j].textContent} expired. `;
+                                    cell.setAttribute('title', `${document.querySelectorAll('th')[j].textContent} expired.`);
+                                }
+                            }
 
                             if (j === 11) {  // GPS Installed Status (column index 11)
                                 const status = row[j].toUpperCase();
@@ -171,14 +175,10 @@
                                     totalNotActive++;
                                 }
                             }
+                        }
 
-                            if ([3, 4, 5, 6, 7, 8, 9].includes(j)) { // Wide columns for dates and weights
-                                cell.classList.add('column-wide');
-                            }
-
-                            if (j === 10) { // File Path PDF
-                                cell.classList.add('file-path');
-                            }
+                        if (comment) {
+                            newRow.title = comment;
                         }
 
                         totalEntries++;
