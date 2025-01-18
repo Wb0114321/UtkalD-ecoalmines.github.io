@@ -33,9 +33,17 @@
         th {
             background-color: #4CAF50;
             color: white;
+            width: 17%;
         }
         td {
             background-color: #f2f2f2;
+            width: 17%;
+        }
+        td.file-path {
+            max-width: 11ch;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .green {
             background-color: #28a745;
@@ -96,15 +104,15 @@
 
     <div id="summary">
         <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
-        <p><strong>Total Installed :</strong> <span id="totalInstalled"></span></p>
-        <p><strong>Total Not Installed :</strong> <span id="totalNotInstalled"></span></p>
-        <p><strong>Total Active :</strong> <span id="totalActive"></span></p>
-        <p><strong>Total Not Active :</strong> <span id="totalNotActive"></span></p>
+        <p><strong>Total Installed:</strong> <span id="totalInstalled"></span></p>
+        <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled"></span></p>
+        <p><strong>Total Active:</strong> <span id="totalActive"></span></p>
+        <p><strong>Total Not Active:</strong> <span id="totalNotActive"></span></p>
     </div>
 
     <script>
-        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';  // Your Google Sheet ID
-        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
+        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Your Google Sheet ID
+        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Your API key
 
         function fetchData() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
@@ -114,6 +122,7 @@
                 .then(data => {
                     const rows = data.values;
                     const table = document.getElementById('vehicleData').getElementsByTagName('tbody')[0];
+                    const today = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
 
                     let totalEntries = 0;
                     let totalInstalled = 0;
@@ -124,37 +133,36 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
-                    const today = new Date();
-
-                    for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
+                    for (let i = 1; i < rows.length; i++) {
                         const row = rows[i];
                         const newRow = table.insertRow();
 
                         totalVehicles++;
-
-                        const transportName = row[1]; // Column B (Transport Name)
+                        const transportName = row[1];
                         if (transportCounts[transportName]) {
                             transportCounts[transportName]++;
                         } else {
                             transportCounts[transportName] = 1;
                         }
 
-                        let comment = "";
-
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            if (j >= 5 && j <= 9) {  // Expiry date columns
-                                const expiryDate = new Date(row[j]);
+                            if (j >= 5 && j <= 9) { // Expiry date columns
+                                const expiryDate = row[j];
                                 if (expiryDate < today) {
                                     cell.classList.add('red');
-                                    comment += `${document.querySelectorAll('th')[j].textContent} expired. `;
-                                    cell.setAttribute('title', `${document.querySelectorAll('th')[j].textContent} expired.`);
+                                    cell.title = `${cell.textContent} expired.`;
+                                    alert(`${row[0]}: ${expiryDate} expired.`);
                                 }
                             }
 
-                            if (j === 11) {  // GPS Installed Status (column index 11)
+                            if (j === 10) { // File Path PDF column
+                                cell.classList.add('file-path');
+                            }
+
+                            if (j === 11) { // GPS Installed Status column
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -165,7 +173,7 @@
                                 }
                             }
 
-                            if (j === 12) {  // Active Status (column index 12)
+                            if (j === 12) { // Active Status column
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -176,11 +184,6 @@
                                 }
                             }
                         }
-
-                        if (comment) {
-                            newRow.title = comment;
-                        }
-
                         totalEntries++;
                     }
 
