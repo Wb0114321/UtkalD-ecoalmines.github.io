@@ -7,34 +7,78 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #eaf7ff;
             margin: 0;
             padding: 20px;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #1e90ff;
+            margin: 20px 0;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
         }
-        li {
-            background-color: #fff;
-            margin: 10px 0;
-            padding: 10px;
+        th, td {
+            padding: 12px;
+            text-align: left;
             border: 1px solid #ddd;
-            border-radius: 5px;
+        }
+        th {
+            background-color: #1e90ff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        tfoot {
+            background-color: #1e90ff;
+            color: white;
+        }
+        .summary {
             font-size: 18px;
             color: #333;
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border: 2px solid #1e90ff;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Transporter Vehicle Summary</h1>
-    <ul id="transporterSummary">
-        <!-- Transporter data will be inserted here -->
-    </ul>
+    <table id="transporterTable">
+        <thead>
+            <tr>
+                <th>Transporter</th>
+                <th>Number of Vehicles</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total Transporters</td>
+                <td id="totalTransporters">0</td>
+            </tr>
+            <tr>
+                <td>Total Vehicles</td>
+                <td id="totalVehicles">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="summary">
+        <p id="transportSummary">Fetching data...</p>
+    </div>
 
     <script>
         const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Your Google Sheet ID
@@ -48,51 +92,46 @@
                 .then(data => {
                     const rows = data.values;
                     const transporterCounts = {};
-                    let currentTransporter = '';  // Track the last valid transporter
-                    let vehicleCount = 0;  // Count of vehicles for the current transporter
+                    let totalVehicles = 0;
+                    let totalTransporters = 0;
 
-                    // Skip header row and count vehicles for each transporter
+                    // Skip header row and process data
                     for (let i = 1; i < rows.length; i++) {
-                        const transporter = rows[i][1] ? rows[i][1].trim() : ''; // Trim transporter name
+                        const transporter = rows[i][1]?.trim() || ''; // Trim transporter name
                         const vehicle = rows[i][0]; // Vehicle number
 
-                        // If transporter name exists, update the current transporter
                         if (transporter) {
-                            if (currentTransporter && vehicleCount > 0) {
-                                // Save count for the last transporter before updating to the new one
-                                transporterCounts[currentTransporter] = (transporterCounts[currentTransporter] || 0) + vehicleCount;
-                            }
-                            currentTransporter = transporter;  // Update the last valid transporter
-                            vehicleCount = 0;  // Reset vehicle count for new transporter
-                        }
-
-                        // Count the vehicles under the current transporter
-                        if (vehicle) {
-                            vehicleCount++;
+                            transporterCounts[transporter] = (transporterCounts[transporter] || 0) + 1;
                         }
                     }
 
-                    // Add the remaining vehicles count for the last transporter
-                    if (currentTransporter && vehicleCount > 0) {
-                        transporterCounts[currentTransporter] = (transporterCounts[currentTransporter] || 0) + vehicleCount;
-                    }
-
-                    // Update the UI
-                    const summaryList = document.getElementById('transporterSummary');
-                    summaryList.innerHTML = ''; // Clear previous results
+                    // Populate table with data
+                    const tbody = document.querySelector('#transporterTable tbody');
+                    tbody.innerHTML = ''; // Clear previous rows
 
                     for (const [transporter, count] of Object.entries(transporterCounts)) {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `${transporter}: ${count} vehicle(s)`;
-                        summaryList.appendChild(listItem);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `<td>${transporter}</td><td>${count}</td>`;
+                        tbody.appendChild(row);
+                        totalVehicles += count;
                     }
+
+                    // Update total counts
+                    totalTransporters = Object.keys(transporterCounts).length;
+                    document.getElementById('totalTransporters').textContent = totalTransporters;
+                    document.getElementById('totalVehicles').textContent = totalVehicles;
+
+                    // Update summary
+                    document.getElementById('transportSummary').textContent = 
+                        `Summary: Total Transporters = ${totalTransporters}, Total Vehicles = ${totalVehicles}`;
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
+                    document.getElementById('transportSummary').textContent = 'Error fetching data. Please try again later.';
                 });
         }
 
-        // Fetch transporter summary on page load
+        // Fetch data on page load
         window.onload = fetchTransporterSummary;
     </script>
 </body>
