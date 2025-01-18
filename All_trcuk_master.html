@@ -24,11 +24,13 @@
             border-collapse: collapse;
             margin-top: 20px;
             background-color: white;
+            table-layout: auto;
         }
         th, td {
             padding: 12px;
             border: 1px solid #ddd;
             text-align: center;
+            word-wrap: break-word;
         }
         th {
             background-color: #4CAF50;
@@ -44,11 +46,6 @@
         .red {
             background-color: #dc3545;
             color: white;
-        }
-        .comment {
-            font-size: 12px;
-            color: #dc3545;
-            font-weight: bold;
         }
         #summary {
             margin-top: 20px;
@@ -89,7 +86,7 @@
                 <th>Insurance Valid up to</th>
                 <th>PUCC Valid up to</th>
                 <th>Permit Valid up to</th>
-                <th>File Path PDF</th>
+                <th style="width: 11ch;">File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
                 <th>Comments</th>
@@ -131,6 +128,7 @@
                     let totalVehicles = 0;
 
                     const today = new Date();
+                    const todayString = today.toISOString().split('T')[0];
 
                     for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
@@ -150,14 +148,6 @@
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
-
-                            if (j >= 5 && j <= 9) {  // Date columns: Fitness, Tax, Insurance, PUCC, Permit
-                                const dateValue = new Date(row[j]);
-                                if (dateValue < today) {
-                                    cell.classList.add('red');
-                                    comments.push(`${table.rows[0].cells[j].textContent} expired`);
-                                }
-                            }
 
                             if (j === 11) {  // GPS Installed Status (column index 11)
                                 const status = row[j].toUpperCase();
@@ -180,13 +170,25 @@
                                     totalNotActive++;
                                 }
                             }
+
+                            if ([5, 6, 7, 8, 9].includes(j)) { // Date columns
+                                const date = new Date(row[j]);
+                                if (date < today) {
+                                    cell.classList.add('red');
+                                    comments.push(`${table.rows[0].cells[j].textContent} expired`);
+                                }
+                            }
+
+                            if (j === 10) { // File Path PDF (column index 10)
+                                cell.textContent = row[j].slice(0, 11);
+                            }
                         }
 
-                        const commentCell = newRow.insertCell();
-                        commentCell.textContent = comments.join(', ');
-                        commentCell.classList.add('comment');
-
                         totalEntries++;
+
+                        // Add comments column
+                        const commentsCell = newRow.insertCell();
+                        commentsCell.textContent = comments.join(', ');
                     }
 
                     document.getElementById('totalEntries').textContent = totalEntries;
