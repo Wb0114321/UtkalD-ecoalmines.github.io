@@ -43,20 +43,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        td.expired {
-            background-color: #dc3545;
-            color: white;
-            cursor: pointer;
-        }
-        td.expired:hover::after {
-            content: "Expired";
-            position: absolute;
-            background-color: black;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            white-space: nowrap;
-        }
         .green {
             background-color: #28a745;
             color: white;
@@ -64,6 +50,23 @@
         .red {
             background-color: #dc3545;
             color: white;
+        }
+        #summary {
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            margin-top: 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
         }
         .column-wide {
             min-width: 17ch;
@@ -75,6 +78,8 @@
         Total Transporters: <span id="totalTransporters"></span>, Total Vehicles: <span id="totalVehicles"></span>
     </div>
     <h1>Vehicle Data</h1>
+    <a href="transporter.html" class="button">View Transporter Vehicles</a>
+    <a href="transporter_summary.html" class="button" target="_blank">Transporter Summary</a>
     <table id="vehicleData">
         <thead>
             <tr>
@@ -98,13 +103,20 @@
         </tbody>
     </table>
 
+    <div id="summary">
+        <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
+        <p><strong>Total Installed :</strong> <span id="totalInstalled"></span></p>
+        <p><strong>Total Not Installed :</strong> <span id="totalNotInstalled"></span></p>
+        <p><strong>Total Active :</strong> <span id="totalActive"></span></p>
+        <p><strong>Total Not Active :</strong> <span id="totalNotActive"></span></p>
+    </div>
+
     <script>
         const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';  // Your Google Sheet ID
         const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
 
         function fetchData() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
-            const today = new Date();
 
             fetch(url)
                 .then(response => response.json())
@@ -138,16 +150,15 @@
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            // Highlight expired dates
-                            if ([5, 6, 7, 8, 9].includes(j)) { // Columns for expiry dates
-                                cell.classList.add('column-wide');
-                                const cellDate = new Date(row[j]);
-                                if (cellDate < today) {
-                                    cell.classList.add('expired');
+                            if ([5, 6, 7, 8, 9].includes(j)) { // Expiry date fields
+                                const date = new Date(row[j]);
+                                if (date < new Date()) {
+                                    cell.classList.add('red');
+                                    cell.title = 'Expired!';
                                 }
                             }
 
-                            if (j === 11) {  // GPS Installed Status (column index 11)
+                            if (j === 11) {  // GPS Installed Status
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -158,7 +169,7 @@
                                 }
                             }
 
-                            if (j === 12) {  // Active Status (column index 12)
+                            if (j === 12) {  // Active Status
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -169,6 +180,10 @@
                                 }
                             }
 
+                            if ([3, 4, 5, 6, 7, 8, 9].includes(j)) { // Wide columns for dates and weights
+                                cell.classList.add('column-wide');
+                            }
+
                             if (j === 10) { // File Path PDF
                                 cell.classList.add('file-path');
                             }
@@ -177,8 +192,16 @@
                         totalEntries++;
                     }
 
-                    document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
+                    document.getElementById('totalEntries').textContent = totalEntries;
+                    document.getElementById('totalInstalled').textContent = totalInstalled;
+                    document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
+                    document.getElementById('totalActive').textContent = totalActive;
+                    document.getElementById('totalNotActive').textContent = totalNotActive;
+
                     document.getElementById('totalVehicles').textContent = totalVehicles;
+                    document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
+
+                    localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
