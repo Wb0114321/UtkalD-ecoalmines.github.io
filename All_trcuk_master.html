@@ -24,13 +24,11 @@
             border-collapse: collapse;
             margin-top: 20px;
             background-color: white;
-            table-layout: auto;
         }
         th, td {
             padding: 12px;
             border: 1px solid #ddd;
             text-align: center;
-            word-wrap: break-word;
         }
         th {
             background-color: #4CAF50;
@@ -38,6 +36,12 @@
         }
         td {
             background-color: #f2f2f2;
+        }
+        td.file-path {
+            max-width: 11ch;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .green {
             background-color: #28a745;
@@ -64,6 +68,9 @@
         .button:hover {
             background-color: #0056b3;
         }
+        .column-wide {
+            min-width: 17ch;
+        }
     </style>
 </head>
 <body>
@@ -79,17 +86,16 @@
                 <th>Vehicle Number</th>
                 <th>Name Of Transport</th>
                 <th>Contact No</th>
-                <th>Un Laden Weight</th>
-                <th>Loaden Weight</th>
-                <th>Fitness Valid up to</th>
-                <th>Tax Valid up to</th>
-                <th>Insurance Valid up to</th>
-                <th>PUCC Valid up to</th>
-                <th>Permit Valid up to</th>
-                <th style="width: 11ch;">File Path PDF</th>
+                <th class="column-wide">Un Laden Weight</th>
+                <th class="column-wide">Loaden Weight</th>
+                <th class="column-wide">Fitness Valid up to</th>
+                <th class="column-wide">Tax Valid up to</th>
+                <th class="column-wide">Insurance Valid up to</th>
+                <th class="column-wide">PUCC Valid up to</th>
+                <th class="column-wide">Permit Valid up to</th>
+                <th class="file-path">File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
-                <th>Comments</th>
             </tr>
         </thead>
         <tbody>
@@ -127,9 +133,6 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
-                    const today = new Date();
-                    const todayString = today.toISOString().split('T')[0];
-
                     for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
                         const newRow = table.insertRow();
@@ -142,8 +145,6 @@
                         } else {
                             transportCounts[transportName] = 1;
                         }
-
-                        let comments = [];
 
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
@@ -171,24 +172,16 @@
                                 }
                             }
 
-                            if ([5, 6, 7, 8, 9].includes(j)) { // Date columns
-                                const date = new Date(row[j]);
-                                if (date < today) {
-                                    cell.classList.add('red');
-                                    comments.push(`${table.rows[0].cells[j].textContent} expired`);
-                                }
+                            if ([3, 4, 5, 6, 7, 8, 9].includes(j)) { // Wide columns for dates and weights
+                                cell.classList.add('column-wide');
                             }
 
-                            if (j === 10) { // File Path PDF (column index 10)
-                                cell.textContent = row[j].slice(0, 11);
+                            if (j === 10) { // File Path PDF
+                                cell.classList.add('file-path');
                             }
                         }
 
                         totalEntries++;
-
-                        // Add comments column
-                        const commentsCell = newRow.insertCell();
-                        commentsCell.textContent = comments.join(', ');
                     }
 
                     document.getElementById('totalEntries').textContent = totalEntries;
