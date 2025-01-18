@@ -45,6 +45,11 @@
             background-color: #dc3545;
             color: white;
         }
+        .comment {
+            font-size: 12px;
+            color: #dc3545;
+            font-weight: bold;
+        }
         #summary {
             margin-top: 20px;
         }
@@ -87,6 +92,7 @@
                 <th>File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
+                <th>Comments</th>
             </tr>
         </thead>
         <tbody>
@@ -124,6 +130,8 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
+                    const today = new Date();
+
                     for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
                         const newRow = table.insertRow();
@@ -137,9 +145,19 @@
                             transportCounts[transportName] = 1;
                         }
 
+                        let comments = [];
+
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
+
+                            if (j >= 5 && j <= 9) {  // Date columns: Fitness, Tax, Insurance, PUCC, Permit
+                                const dateValue = new Date(row[j]);
+                                if (dateValue < today) {
+                                    cell.classList.add('red');
+                                    comments.push(`${table.rows[0].cells[j].textContent} expired`);
+                                }
+                            }
 
                             if (j === 11) {  // GPS Installed Status (column index 11)
                                 const status = row[j].toUpperCase();
@@ -163,6 +181,10 @@
                                 }
                             }
                         }
+
+                        const commentCell = newRow.insertCell();
+                        commentCell.textContent = comments.join(', ');
+                        commentCell.classList.add('comment');
 
                         totalEntries++;
                     }
