@@ -7,34 +7,64 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #eaf6ff;
             margin: 0;
             padding: 20px;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #00509e;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
             background-color: #fff;
-            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
             padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #00509e;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #d1e7ff;
+        }
+        .summary {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+            color: #333;
+            padding: 10px;
+            background-color: #f8f9fa;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 18px;
-            color: #333;
         }
     </style>
 </head>
 <body>
     <h1>Transporter Vehicle Summary</h1>
-    <ul id="transporterSummary">
-        <!-- Transporter data will be inserted here -->
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Transporter Name</th>
+                <th>Total Vehicles</th>
+            </tr>
+        </thead>
+        <tbody id="transporterSummary">
+            <!-- Transporter data will be inserted here -->
+        </tbody>
+    </table>
+    <div class="summary" id="summary">
+        <!-- Total transporters and vehicles summary -->
+        TOTAL TRANSPORTERS: 0 | TOTAL VEHICLES: 0
+    </div>
 
     <script>
         const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Your Google Sheet ID
@@ -77,15 +107,24 @@
                         transporterCounts[currentTransporter] = (transporterCounts[currentTransporter] || 0) + vehicleCount;
                     }
 
-                    // Update the UI
-                    const summaryList = document.getElementById('transporterSummary');
-                    summaryList.innerHTML = ''; // Clear previous results
+                    // Update the table
+                    const summaryBody = document.getElementById('transporterSummary');
+                    summaryBody.innerHTML = ''; // Clear previous results
+                    let totalVehicles = 0;
 
                     for (const [transporter, count] of Object.entries(transporterCounts)) {
-                        const listItem = document.createElement('li');
-                        listItem.textContent = `${transporter}: ${count} vehicle(s)`;
-                        summaryList.appendChild(listItem);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${transporter}</td>
+                            <td>${count}</td>
+                        `;
+                        summaryBody.appendChild(row);
+                        totalVehicles += count;
                     }
+
+                    // Update the summary section
+                    const summaryDiv = document.getElementById('summary');
+                    summaryDiv.textContent = `TOTAL TRANSPORTERS: ${Object.keys(transporterCounts).length} | TOTAL VEHICLES: ${totalVehicles}`;
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
