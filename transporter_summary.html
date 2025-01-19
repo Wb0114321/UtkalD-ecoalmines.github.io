@@ -20,11 +20,13 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            table-layout: auto; /* Allow column widths to adjust dynamically */
         }
         th, td {
             padding: 12px;
             text-align: left;
             border: 1px solid #ddd;
+            word-wrap: break-word; /* Ensure long content wraps to avoid overflow */
         }
         th {
             background-color: #1e90ff;
@@ -57,7 +59,7 @@
     <table id="transporterTable">
         <thead>
             <tr>
-                <th>Transporter</th>
+                <th style="width: auto;">Transporter</th> <!-- Auto-adjust column width -->
                 <th>Number of Vehicles</th>
             </tr>
         </thead>
