@@ -72,6 +72,7 @@
             min-width: 17ch;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 </head>
 <body>
     <div id="banner">
@@ -80,6 +81,7 @@
     <h1>Vehicle Data</h1>
     <a href="transporter.html" class="button">View Transporter Vehicles</a>
     <a href="transporter_summary.html" class="button" target="_blank">Transporter Summary</a>
+    <button class="button" id="exportButton">Export to Excel</button>
     <table id="vehicleData">
         <thead>
             <tr>
@@ -207,6 +209,12 @@
                     console.error('Error fetching data:', error);
                 });
         }
+
+        document.getElementById('exportButton').addEventListener('click', function() {
+            const table = document.getElementById('vehicleData');
+            const wb = XLSX.utils.table_to_book(table, { sheet: 'Vehicle Data' });
+            XLSX.writeFile(wb, 'vehicle_data.xlsx');
+        });
 
         window.onload = fetchData;
     </script>
