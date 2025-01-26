@@ -86,8 +86,6 @@
         <thead>
             <tr>
                 <th>Vehicle Number</th>
-                <th>Wheel</th>
-                <th>Ag. No</th>
                 <th>Name Of Transport</th>
                 <th>Contact No</th>
                 <th class="column-wide">Un Laden Weight</th>
@@ -154,7 +152,8 @@
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            if ([7, 8, 9, 10, 11].includes(j)) { // Expiry date fields
+                            // Check expiry date fields (columns 7-11 for dates)
+                            if ([7, 8, 9, 10, 11].includes(j)) {
                                 const date = new Date(row[j]);
                                 if (date < new Date()) {
                                     cell.classList.add('red');
@@ -162,7 +161,8 @@
                                 }
                             }
 
-                            if (j === 12) {  // GPS Installed Status
+                            // GPS Installed Status (Column 12)
+                            if (j === 12) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -173,7 +173,8 @@
                                 }
                             }
 
-                            if (j === 13) {  // Active Status
+                            // Active Status (Column 13)
+                            if (j === 13) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -184,11 +185,13 @@
                                 }
                             }
 
-                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) { // Wide columns for dates and weights
+                            // Apply column-wide styling
+                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) {
                                 cell.classList.add('column-wide');
                             }
 
-                            if (j === 12) { // File Path PDF
+                            // File Path PDF (Column 12)
+                            if (j === 12) {
                                 cell.classList.add('file-path');
                             }
                         }
@@ -196,6 +199,7 @@
                         totalEntries++;
                     }
 
+                    // Update the summary counts
                     document.getElementById('totalEntries').textContent = totalEntries;
                     document.getElementById('totalInstalled').textContent = totalInstalled;
                     document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
@@ -205,6 +209,7 @@
                     document.getElementById('totalVehicles').textContent = totalVehicles;
                     document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
 
+                    // Store transport counts in localStorage
                     localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
                 })
                 .catch(error => {
