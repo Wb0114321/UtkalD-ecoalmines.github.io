@@ -109,10 +109,10 @@
 
     <div id="summary">
         <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
-        <p><strong>Total Installed:</strong> <span id="totalInstalled"></span></p>
-        <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled"></span></p>
-        <p><strong>Total Active:</strong> <span id="totalActive"></span></p>
-        <p><strong>Total Not Active:</strong> <span id="totalNotActive"></span></p>
+        <p><strong>Total Installed :</strong> <span id="totalInstalled"></span></p>
+        <p><strong>Total Not Installed :</strong> <span id="totalNotInstalled"></span></p>
+        <p><strong>Total Active :</strong> <span id="totalActive"></span></p>
+        <p><strong>Total Not Active :</strong> <span id="totalNotActive"></span></p>
     </div>
 
     <script>
@@ -154,8 +154,7 @@
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            // Handling expiration date fields
-                            if ([7, 8, 9, 10, 11].includes(j)) {
+                            if ([7, 8, 9, 10, 11].includes(j)) { // Expiry date fields
                                 const date = new Date(row[j]);
                                 if (date < new Date()) {
                                     cell.classList.add('red');
@@ -163,8 +162,7 @@
                                 }
                             }
 
-                            // Handling GPS Installed Status
-                            if (j === 12) {
+                            if (j === 12) {  // GPS Installed Status
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -175,8 +173,7 @@
                                 }
                             }
 
-                            // Handling Active Status
-                            if (j === 13) {
+                            if (j === 13) {  // Active Status
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -187,13 +184,11 @@
                                 }
                             }
 
-                            // Adding classes for wide columns
-                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) {
+                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) { // Wide columns for dates and weights
                                 cell.classList.add('column-wide');
                             }
 
-                            // Adding class for file path PDF column
-                            if (j === 12) {
+                            if (j === 12) { // File Path PDF
                                 cell.classList.add('file-path');
                             }
                         }
@@ -201,14 +196,12 @@
                         totalEntries++;
                     }
 
-                    // Update summary counts
                     document.getElementById('totalEntries').textContent = totalEntries;
                     document.getElementById('totalInstalled').textContent = totalInstalled;
                     document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
                     document.getElementById('totalActive').textContent = totalActive;
                     document.getElementById('totalNotActive').textContent = totalNotActive;
 
-                    // Update vehicle and transporter counts
                     document.getElementById('totalVehicles').textContent = totalVehicles;
                     document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
 
