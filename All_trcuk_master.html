@@ -86,6 +86,8 @@
         <thead>
             <tr>
                 <th>Vehicle Number</th>
+                <th>Wheel</th>
+                <th>Ag. No</th>
                 <th>Name Of Transport</th>
                 <th>Contact No</th>
                 <th class="column-wide">Un Laden Weight</th>
@@ -107,10 +109,10 @@
 
     <div id="summary">
         <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
-        <p><strong>Total Installed :</strong> <span id="totalInstalled"></span></p>
-        <p><strong>Total Not Installed :</strong> <span id="totalNotInstalled"></span></p>
-        <p><strong>Total Active :</strong> <span id="totalActive"></span></p>
-        <p><strong>Total Not Active :</strong> <span id="totalNotActive"></span></p>
+        <p><strong>Total Installed:</strong> <span id="totalInstalled"></span></p>
+        <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled"></span></p>
+        <p><strong>Total Active:</strong> <span id="totalActive"></span></p>
+        <p><strong>Total Not Active:</strong> <span id="totalNotActive"></span></p>
     </div>
 
     <script>
@@ -152,7 +154,7 @@
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            // Check expiry date fields (columns 7-11 for dates)
+                            // Handling expiration date fields
                             if ([7, 8, 9, 10, 11].includes(j)) {
                                 const date = new Date(row[j]);
                                 if (date < new Date()) {
@@ -161,7 +163,7 @@
                                 }
                             }
 
-                            // GPS Installed Status (Column 12)
+                            // Handling GPS Installed Status
                             if (j === 12) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
@@ -173,7 +175,7 @@
                                 }
                             }
 
-                            // Active Status (Column 13)
+                            // Handling Active Status
                             if (j === 13) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
@@ -185,12 +187,12 @@
                                 }
                             }
 
-                            // Apply column-wide styling
+                            // Adding classes for wide columns
                             if ([5, 6, 7, 8, 9, 10, 11].includes(j)) {
                                 cell.classList.add('column-wide');
                             }
 
-                            // File Path PDF (Column 12)
+                            // Adding class for file path PDF column
                             if (j === 12) {
                                 cell.classList.add('file-path');
                             }
@@ -199,17 +201,17 @@
                         totalEntries++;
                     }
 
-                    // Update the summary counts
+                    // Update summary counts
                     document.getElementById('totalEntries').textContent = totalEntries;
                     document.getElementById('totalInstalled').textContent = totalInstalled;
                     document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
                     document.getElementById('totalActive').textContent = totalActive;
                     document.getElementById('totalNotActive').textContent = totalNotActive;
 
+                    // Update vehicle and transporter counts
                     document.getElementById('totalVehicles').textContent = totalVehicles;
                     document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
 
-                    // Store transport counts in localStorage
                     localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
                 })
                 .catch(error => {
