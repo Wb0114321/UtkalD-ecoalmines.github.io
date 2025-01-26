@@ -81,7 +81,7 @@
                 return;
             }
 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet_?key=${apiKey}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -94,9 +94,9 @@
 
                     for (let i = 1; i < rows.length; i++) { // Skip header row
                         const vehicleNumber = rows[i][0]; // Column A
-                        const transporter = rows[i][1]; // Column B
+                        const transporter = rows[i][3]; // Column D
 
-                        if (transporter.toLowerCase() === transporterName.toLowerCase()) {
+                        if (transporter && transporter.toLowerCase() === transporterName.toLowerCase()) {
                             const newRow = tableBody.insertRow();
                             const cell = newRow.insertCell();
                             cell.textContent = vehicleNumber;
