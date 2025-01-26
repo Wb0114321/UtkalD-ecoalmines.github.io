@@ -79,6 +79,8 @@
         Total Transporters: <span id="totalTransporters"></span>, Total Vehicles: <span id="totalVehicles"></span>
     </div>
     <h1>Vehicle Data</h1>
+    <a href="transporter.html" class="button">View Transporter Vehicles</a>
+    <a href="transporter_summary.html" class="button" target="_blank">Transporter Summary</a>
     <button class="button" id="exportButton">Export to Excel</button>
     <table id="vehicleData">
         <thead>
@@ -95,6 +97,7 @@
                 <th class="column-wide">Insurance Valid up to</th>
                 <th class="column-wide">PUCC Valid up to</th>
                 <th class="column-wide">Permit Valid up to</th>
+                <th class="file-path">File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
             </tr>
@@ -131,16 +134,35 @@
                     let totalActive = 0;
                     let totalNotActive = 0;
 
+                    let transportCounts = {};
+                    let totalVehicles = 0;
+
                     for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
                         const row = rows[i];
                         const newRow = table.insertRow();
+
+                        totalVehicles++;
+
+                        const transportName = row[3]; // Column D (Transport Name)
+                        if (transportCounts[transportName]) {
+                            transportCounts[transportName]++;
+                        } else {
+                            transportCounts[transportName] = 1;
+                        }
 
                         for (let j = 0; j < row.length; j++) {
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            // GPS Installed Status (Column 12)
-                            if (j === 12) {
+                            if ([7, 8, 9, 10, 11].includes(j)) { // Expiry date fields
+                                const date = new Date(row[j]);
+                                if (date < new Date()) {
+                                    cell.classList.add('red');
+                                    cell.title = 'Expired!';
+                                }
+                            }
+
+                            if (j === 13) {  // GPS Installed Status (Column 14)
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -151,8 +173,7 @@
                                 }
                             }
 
-                            // Active Status (Column 13)
-                            if (j === 13) {
+                            if (j === 14) {  // Active Status (Column 15)
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -162,17 +183,29 @@
                                     totalNotActive++;
                                 }
                             }
+
+                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) { // Wide columns for dates and weights
+                                cell.classList.add('column-wide');
+                            }
+
+                            if (j === 12) { // File Path PDF
+                                cell.classList.add('file-path');
+                            }
                         }
 
                         totalEntries++;
                     }
 
-                    // Update Summary Counts
                     document.getElementById('totalEntries').textContent = totalEntries;
                     document.getElementById('totalInstalled').textContent = totalInstalled;
                     document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
                     document.getElementById('totalActive').textContent = totalActive;
                     document.getElementById('totalNotActive').textContent = totalNotActive;
+
+                    document.getElementById('totalVehicles').textContent = totalVehicles;
+                    document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
+
+                    localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
