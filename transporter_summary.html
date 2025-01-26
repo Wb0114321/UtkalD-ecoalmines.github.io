@@ -71,7 +71,7 @@
         const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Your API key
 
         function fetchTransporterSummary() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet_?key=${apiKey}`;
 
             fetch(url)
                 .then(response => response.json())
@@ -83,8 +83,8 @@
 
                     // Skip header row and count vehicles for each transporter
                     for (let i = 1; i < rows.length; i++) {
-                        const transporter = rows[i][1] ? rows[i][1].trim() : ''; // Trim transporter name
-                        const vehicle = rows[i][0]; // Vehicle number
+                        const vehicle = rows[i][0] ? rows[i][0].trim() : ''; // Vehicle number from column A
+                        const transporter = rows[i][3] ? rows[i][3].trim() : ''; // Name of Transport from column D
 
                         // If transporter name exists, update the current transporter
                         if (transporter) {
