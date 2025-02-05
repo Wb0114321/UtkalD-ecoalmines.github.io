@@ -35,6 +35,8 @@
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -57,57 +59,69 @@
         <tbody>
         </tbody>
     </table>
-    
-    <div class="floating-box" id="summaryBox">
-        <p><strong>Total Credit Qty:</strong> <span id="totalCreditQty">0</span> MT</p>
-        <p><strong>Total Lifted Qty:</strong> <span id="totalLiftedQty">0</span> MT</p>
-        <p><strong>Total Balance Qty:</strong> <span id="totalBalanceQty">0</span> MT</p>
+
+    <div class="floating-box" id="totals">
+        Total Credit Qty: 0 MT <br>
+        Total Lifted Qty: 0 MT <br>
+        Total Balance Qty: 0 MT
     </div>
-    
+
     <script>
         async function fetchGoogleSheetData() {
             const sheetId = "1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g";
             const apiKey = "AIzaSyCNBAbS7PYlfFQoRfhA65hM7og8aU3iUqU";
             const range = "Fy 2025-26!H:P";
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-            
+
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 const rows = data.values;
-                
-                let totalCreditQty = 0;
-                let totalLiftedQty = 0;
-                let totalBalanceQty = 0;
-                
+
                 if (rows.length > 0) {
                     const tableBody = document.querySelector("#sheetData tbody");
                     tableBody.innerHTML = "";
-                    
+
+                    let totalCreditQty = 0;
+                    let totalLiftedQty = 0;
+                    let totalBalanceQty = 0;
+
                     for (let i = 1; i < rows.length; i++) {
                         const row = rows[i];
                         const tr = document.createElement("tr");
-                        row.forEach(cell => {
+
+                        row.forEach((cell, index) => {
                             const td = document.createElement("td");
                             td.textContent = cell;
                             tr.appendChild(td);
+
+                            // Sum Calculation
+                            if (index === 2) { // Credit Qty (Column J)
+                                totalCreditQty += parseFloat(cell.replace("MT", "").trim()) || 0;
+                            }
+                            if (index === 3) { // Lifted Qty (Column K)
+                                totalLiftedQty += parseFloat(cell.replace("MT", "").trim()) || 0;
+                            }
+                            if (index === 4) { // Balance Qty (Column L)
+                                totalBalanceQty += parseFloat(cell.replace("MT", "").trim()) || 0;
+                            }
                         });
+
                         tableBody.appendChild(tr);
-                        
-                        // Summing up the quantities
-                        totalCreditQty += parseFloat(row[2].replace(" MT", "")) || 0;
-                        totalLiftedQty += parseFloat(row[3].replace(" MT", "")) || 0;
-                        totalBalanceQty += parseFloat(row[4].replace(" MT", "")) || 0;
                     }
+
+                    // Update Floating Box
+                    document.getElementById("totals").innerHTML = `
+                        Total Credit Qty: ${totalCreditQty.toFixed(2)} MT <br>
+                        Total Lifted Qty: ${totalLiftedQty.toFixed(2)} MT <br>
+                        Total Balance Qty: ${totalBalanceQty.toFixed(2)} MT
+                    `;
                 }
-                
-                document.getElementById("totalCreditQty").textContent = totalCreditQty.toFixed(2);
-                document.getElementById("totalLiftedQty").textContent = totalLiftedQty.toFixed(2);
-                document.getElementById("totalBalanceQty").textContent = totalBalanceQty.toFixed(2);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
+
         fetchGoogleSheetData();
     </script>
 </body>
