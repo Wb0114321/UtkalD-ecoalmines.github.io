@@ -103,6 +103,18 @@
                         row.forEach((cell, index) => {
                             const td = document.createElement("td");
                             td.textContent = cell;
+                            
+                            // Status Color Logic
+                            if (index === 7) { // Status Column
+                                if (cell.trim().toUpperCase() === "COMPLETED") {
+                                    td.style.backgroundColor = "green";
+                                    td.style.color = "white";
+                                } else if (cell.trim().toUpperCase() === "RUNNING") {
+                                    td.style.backgroundColor = "lightyellow";
+                                    td.style.color = "black";
+                                }
+                            }
+
                             tr.appendChild(td);
 
                             // Sum Calculation
