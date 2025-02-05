@@ -26,7 +26,10 @@
             background: #007bff;
             color: white;
         }
+        /* Floating Box */
         .floating-box {
+            width: 200px;
+            height: 300px;
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -37,6 +40,8 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             font-size: 18px;
             font-weight: bold;
+            cursor: move;
+            text-align: left;
         }
     </style>
 </head>
@@ -61,8 +66,8 @@
     </table>
 
     <div class="floating-box" id="totals">
-        Total Credit Qty: 0 MT <br>
-        Total Lifted Qty: 0 MT <br>
+        Total Credit Qty: 0 MT <br><br>
+        Total Lifted Qty: 0 MT <br><br>
         Total Balance Qty: 0 MT
     </div>
 
@@ -112,8 +117,8 @@
 
                     // Update Floating Box
                     document.getElementById("totals").innerHTML = `
-                        Total Credit Qty: ${totalCreditQty.toFixed(2)} MT <br>
-                        Total Lifted Qty: ${totalLiftedQty.toFixed(2)} MT <br>
+                        Total Credit Qty: ${totalCreditQty.toFixed(2)} MT <br><br>
+                        Total Lifted Qty: ${totalLiftedQty.toFixed(2)} MT <br><br>
                         Total Balance Qty: ${totalBalanceQty.toFixed(2)} MT
                     `;
                 }
@@ -123,6 +128,36 @@
         }
 
         fetchGoogleSheetData();
+
+        // Drag Functionality for Floating Box
+        const dragElement = (element) => {
+            let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+
+            const onMouseMove = (event) => {
+                event.preventDefault();
+                posX = mouseX - event.clientX;
+                posY = mouseY - event.clientY;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+                element.style.top = `${element.offsetTop - posY}px`;
+                element.style.left = `${element.offsetLeft - posX}px`;
+            };
+
+            const onMouseUp = () => {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            };
+
+            element.onmousedown = (event) => {
+                event.preventDefault();
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+                document.onmousemove = onMouseMove;
+                document.onmouseup = onMouseUp;
+            };
+        };
+
+        dragElement(document.getElementById("totals"));
     </script>
 </body>
 </html>
