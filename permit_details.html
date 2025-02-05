@@ -26,13 +26,18 @@
             background: #007bff;
             color: white;
         }
-        /* Floating Box */
-        .floating-box {
-            width: 200px;
-            height: 300px;
+        /* Floating Boxes */
+        .floating-container {
             position: fixed;
             bottom: 20px;
             right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .floating-box {
+            width: 200px;
+            height: 100px;
             background: #007bff;
             color: white;
             padding: 15px;
@@ -40,8 +45,8 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             font-size: 18px;
             font-weight: bold;
+            text-align: center;
             cursor: move;
-            text-align: left;
         }
     </style>
 </head>
@@ -65,10 +70,10 @@
         </tbody>
     </table>
 
-    <div class="floating-box" id="totals">
-        Total Credit Qty: 0 MT <br><br>
-        Total Lifted Qty: 0 MT <br><br>
-        Total Balance Qty: 0 MT
+    <div class="floating-container">
+        <div class="floating-box" id="creditBox">Credit Qty: 0 MT</div>
+        <div class="floating-box" id="liftedBox">Lifted Qty: 0 MT</div>
+        <div class="floating-box" id="balanceBox">Balance Qty: 0 MT</div>
     </div>
 
     <script>
@@ -115,12 +120,10 @@
                         tableBody.appendChild(tr);
                     }
 
-                    // Update Floating Box
-                    document.getElementById("totals").innerHTML = `
-                        Total Credit Qty: ${totalCreditQty.toFixed(2)} MT <br><br>
-                        Total Lifted Qty: ${totalLiftedQty.toFixed(2)} MT <br><br>
-                        Total Balance Qty: ${totalBalanceQty.toFixed(2)} MT
-                    `;
+                    // Update Floating Boxes
+                    document.getElementById("creditBox").innerHTML = `Credit Qty: ${totalCreditQty.toFixed(2)} MT`;
+                    document.getElementById("liftedBox").innerHTML = `Lifted Qty: ${totalLiftedQty.toFixed(2)} MT`;
+                    document.getElementById("balanceBox").innerHTML = `Balance Qty: ${totalBalanceQty.toFixed(2)} MT`;
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -129,8 +132,8 @@
 
         fetchGoogleSheetData();
 
-        // Drag Functionality for Floating Box
-        const dragElement = (element) => {
+        // Drag Functionality for Floating Boxes
+        const makeDraggable = (element) => {
             let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
 
             const onMouseMove = (event) => {
@@ -157,7 +160,9 @@
             };
         };
 
-        dragElement(document.getElementById("totals"));
+        makeDraggable(document.getElementById("creditBox"));
+        makeDraggable(document.getElementById("liftedBox"));
+        makeDraggable(document.getElementById("balanceBox"));
     </script>
 </body>
 </html>
