@@ -99,10 +99,7 @@
             }
 
             const [headers, ...users] = rows;
-            console.log("Headers:", headers); // Debugging
-            console.log("Users:", users); // Debugging
-
-            // Find matching user
+            
             const userIndex = headers.indexOf('user_id');
             const passIndex = headers.indexOf('password');
             const roleIndex = headers.indexOf('user_role');
@@ -115,8 +112,15 @@
             const user = users.find(row => row[userIndex] === username && row[passIndex] === password);
 
             if (user) {
-                alert(`Login Successful! Welcome, ${user[roleIndex]}`);
-                window.location.href = 'home_details.html';
+                const role = user[roleIndex].toLowerCase(); // Role ko lowercase me convert kar rahe hain taaki case-sensitive na ho
+                
+                if (role === 'admin') {
+                    alert(`Login Successful! Welcome, Admin`);
+                    window.location.href = 'Admin_panel.html'; // Admin ke liye Admin panel open hoga
+                } else {
+                    alert(`Login Successful! Welcome, User`);
+                    window.location.href = 'User_panel.html'; // Normal user ke liye User panel open hoga
+                }
             } else {
                 alert("Invalid credentials. Please try again.");
             }
