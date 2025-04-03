@@ -72,14 +72,11 @@
         const SHEET_ID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';
         const SHEET_NAME = 'user';
 
-        // Function to fetch data from Google Sheet
         async function fetchSheetData() {
             try {
                 const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
                 const response = await fetch(url);
                 const data = await response.json();
-
-                console.log("Fetched Data:", data); // Debugging: Log data to the console
                 return data.values;
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -99,7 +96,6 @@
             }
 
             const [headers, ...users] = rows;
-            
             const userIndex = headers.indexOf('user_id');
             const passIndex = headers.indexOf('password');
             const roleIndex = headers.indexOf('user_role');
@@ -112,14 +108,13 @@
             const user = users.find(row => row[userIndex] === username && row[passIndex] === password);
 
             if (user) {
-                const role = user[roleIndex].toLowerCase(); // Role ko lowercase me convert kar rahe hain taaki case-sensitive na ho
-                
+                const role = user[roleIndex].toLowerCase();
                 if (role === 'admin') {
-                    alert(`Login Successful! Welcome, Admin`);
-                    window.location.href = 'Admin_panel.html'; // Admin ke liye Admin panel open hoga
+                    alert("Login Successful! Welcome, Admin.");
+                    window.location.href = 'Admin_Panel.html';
                 } else {
-                    alert(`Login Successful! Welcome, User`);
-                    window.location.href = 'User_panel.html'; // Normal user ke liye User panel open hoga
+                    alert("Login Successful! Welcome, User.");
+                    window.location.href = 'User_Panel.html';
                 }
             } else {
                 alert("Invalid credentials. Please try again.");
@@ -129,7 +124,7 @@
 </head>
 <body>
     <div class="heading">
-        Welcome To Utkal D And Utkal E Coal Mines Transport Department
+        Welcome To Utkal D&E Coal Mines Dispatch Department
     </div>
     <div class="login-container">
         <h2>Login</h2>
