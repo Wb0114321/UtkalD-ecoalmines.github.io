@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date & Month Wise Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            table-layout: fixed;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #FF5733;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+        .chart-button {
+            background-color: #28A745;
+        }
+        .chart-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>Date & Month Wise Report</h1>
+    <p>Select which report you want to view:</p>
+
+    <div class="button-container">
+        <button class="button" onclick="fetchSheetData('date')">Show Date Wise Report</button>
+        <button class="button" onclick="fetchSheetData('month')">Show Month Wise Report</button>
+        <a href="Chart_report.html" target="_blank" class="button chart-button">Chart Report Month Wise</a>
+    </div>
+
+    <div class="container">
+        <div id="date-table"></div>
+        <div id="month-table"></div>
+    </div>
+
+    <a href="User_panel.html" class="back-button">Back to User Panel</a>
+
+    <script>
+        const API_KEY = "AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s";
+        const SHEET_ID = "1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g";
+        const SHEET_NAME = "date%20wise%20report%20i3ms2025-26";
+
+        async function fetchSheetData(reportType) {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.values || data.values.length <= 4) {
+                    document.getElementById('date-table').innerHTML = "<p>No data available</p>";
+                    return;
+                }
+
+                displayData(data.values, reportType);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("⚠ Failed to load data. Check API Key & Sheet permissions.");
+            }
+        }
+
+        function displayData(rows, reportType) {
+            rows.splice(0, 3);
+
+            let totalTrips = 0;
+            let totalQty = 0;
+            let runningMonthTrips = 0;
+            let runningMonthQty = 0;
+            let currentMonth = new Date().toLocaleString('default', { month: 'short' });
+
+            let dateTable = `<h2>Date Wise Report</h2><table><tr>`;
+            let headers = ["Date", "Trips", "Qty"];
+            headers.forEach(header => {
+                dateTable += `<th>${header}</th>`;
+            });
+            dateTable += `</tr>`;
+
+            for (let i = 1; i < rows.length; i++) {
+                dateTable += `<tr>`;
+                let rowData = [rows[i][0] || '', rows[i][1] || '0', rows[i][2] || '0.00'];
+                rowData.forEach(cell => {
+                    dateTable += `<td>${cell}</td>`;
+                });
+                dateTable += `</tr>`;
+            }
+            dateTable += `</table>`;
+
+            let monthTable = `<h2>Month Wise Report</h2><table><tr>`;
+            let monthHeaders = ["Month", "Trips", "Qty"];
+            monthHeaders.forEach(header => {
+                monthTable += `<th>${header}</th>`;
+            });
+            monthTable += `</tr>`;
+
+            for (let i = 14; i < rows.length; i++) {
+                if (!rows[i][5]) break;
+
+                let month = rows[i][5] || "";
+                let trips = parseInt(rows[i][6]) || 0;
+                let qty = parseFloat(rows[i][7]) || 0.00;
+                totalTrips += trips;
+                totalQty += qty;
+                
+                if (month.startsWith(currentMonth)) {
+                    runningMonthTrips += trips;
+                    runningMonthQty += qty;
+                }
+
+                monthTable += `<tr>`;
+                monthTable += `<td>${month}</td>`;
+                monthTable += `<td>${trips}</td>`;
+                monthTable += `<td>${qty.toFixed(2)} MT</td>`;
+                monthTable += `</tr>`;
+            }
+
+            monthTable += `<tr style="font-weight: bold; background-color: #FFC107;">`;
+            monthTable += `<td>Total Running Month</td>`;
+            monthTable += `<td>${runningMonthTrips}</td>`;
+            monthTable += `<td>${runningMonthQty.toFixed(2)} MT</td>`;
+            monthTable += `</tr>`;
+            
+            monthTable += `<tr style="font-weight: bold; background-color: #28A745; color: white;">`;
+            monthTable += `<td>Total Qty FY 25-26</td>`;
+            monthTable += `<td>${totalTrips}</td>`;
+            monthTable += `<td>${totalQty.toFixed(2)} MT</td>`;
+            monthTable += `</tr>`;
+            monthTable += `</table>`;
+
+            if (reportType === "date") {
+                document.getElementById("date-table").innerHTML = dateTable;
+                document.getElementById("month-table").innerHTML = "";
+            } else if (reportType === "month") {
+                document.getElementById("date-table").innerHTML = "";
+                document.getElementById("month-table").innerHTML = monthTable;
+            }
+        }
+    </script>
+</body>
+</html>
