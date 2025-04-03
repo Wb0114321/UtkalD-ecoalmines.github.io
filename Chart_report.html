@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Month Wise Report - Bar & Pie Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .chart-container {
+            width: 50%;
+            max-width: 600px;
+            margin: auto;
+            display: inline-block;
+        }
+        .highlight {
+            color: red;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Month Wise Report</h1>
+    <p>Utkal D and Utkal E Coal Mines Dispatch Data Month Wise </p>
+    <p id="highestMonth" class="highlight"></p>
+
+    <div class="chart-container">
+        <canvas id="monthBarChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="monthPieChart"></canvas>
+    </div>
+    
+    <script>
+        const API_KEY = "AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s";  // Yahan apna API key daalo
+        const SHEET_ID = "1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g";  // Yahan apna Sheet ID daalo
+        const SHEET_NAME = "date%20wise%20report%20i3ms2025-26";  
+
+        async function fetchSheetData() {
+            try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.values || data.values.length <= 4) {
+                    console.error("No data found");
+                    return;
+                }
+
+                processData(data.values);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                alert("⚠ Failed to load data. Check API Key & Sheet permissions.");
+            }
+        }
+
+        function processData(rows) {
+            rows.splice(0, 3); // Ignore first 3 rows
+
+            let monthData = {};
+            let highestMonth = "";
+            let maxQty = 0;
+            let maxTrips = 0;
+            const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            for (let i = 14; i < rows.length; i++) {
+                if (!rows[i][5]) break;
+                let month = rows[i][5] || "";
+                let trips = parseInt(rows[i][6]) || 0;
+                let qty = parseFloat(rows[i][7]) || 0.00;
+
+                if (!monthData[month]) {
+                    monthData[month] = { trips: 0, qty: 0 };
+                }
+                monthData[month].trips += trips;
+                monthData[month].qty += qty;
+
+                if (monthData[month].qty > maxQty) {
+                    maxQty = monthData[month].qty;
+                    maxTrips = monthData[month].trips;
+                    highestMonth = month;
+                }
+            }
+
+            document.getElementById("highestMonth").innerHTML = 
+                `🚀 <span class="highlight">${highestMonth} - ${maxTrips} Trips, ${maxQty.toFixed(2)} MT (Highest)</span>`;
+
+            let sortedMonths = Object.keys(monthData).sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+
+            renderCharts(sortedMonths, monthData, highestMonth);
+        }
+
+        function renderCharts(labels, monthData, highestMonth) {
+            const tripsData = labels.map(month => monthData[month].trips);
+            const qtyData = labels.map(month => monthData[month].qty);
+
+            const colors = labels.map(month => 
+                month === highestMonth ? "red" : `hsl(${Math.random() * 360}, 70%, 50%)`
+            );
+
+            const barCtx = document.getElementById('monthBarChart').getContext('2d');
+            const pieCtx = document.getElementById('monthPieChart').getContext('2d');
+
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "Trips",
+                            data: tripsData,
+                            backgroundColor: "blue"
+                        },
+                        {
+                            label: "Quantity (MT)",
+                            data: qtyData,
+                            backgroundColor: "green"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: labels.map(month => 
+                        month === highestMonth ? `${month} (Highest)` : month
+                    ),
+                    datasets: [{
+                        label: "Quantity (MT)",
+                        data: qtyData,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    let month = labels[tooltipItem.dataIndex];
+                                    let trips = tripsData[tooltipItem.dataIndex];
+                                    let qty = qtyData[tooltipItem.dataIndex].toFixed(2);
+                                    return `${month}: ${trips} Trips, ${qty} MT`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        fetchSheetData();
+    </script>
+</body>
+</html>
