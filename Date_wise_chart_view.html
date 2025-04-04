@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dispatch Report Chart</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+        }
+        #chart_div {
+            width: 90%;
+            height: 500px;
+            margin: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #888;
+        }
+        .highlight {
+            font-weight: bold;
+            color: red;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Dispatch Report FY-2025-26</h2>
+    <div id="chart_div"></div>
+    <p id="highest" class="highlight"></p>
+    
+    <script>
+        const API_KEY = 'AIzaSyCAb2w8YjJEpUbjjC04X6CgUPh1r5QIvhc';
+        const SHEET_ID = '1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g';
+        const RANGE = 'A3:C';
+        
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(fetchData);
+        
+        function fetchData() {
+            const URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+            
+            $.getJSON(URL, function(data) {
+                if (data.values) {
+                    let chartData = [['Date', 'Trips', 'Total Qty']];
+                    let maxTrips = 0, maxQty = 0, maxDate = '';
+                    
+                    data.values.forEach(row => {
+                        let date = row[0] || '';
+                        let trips = parseInt(row[1]) || 0;
+                        let qty = parseFloat(row[2]) || 0;
+                        
+                        chartData.push([date, trips, qty]);
+                        
+                        if (trips > maxTrips) {
+                            maxTrips = trips;
+                            maxQty = qty;
+                            maxDate = date;
+                        }
+                    });
+                    
+                    drawChart(chartData, maxDate, maxTrips, maxQty);
+                }
+            });
+        }
+        
+        function drawChart(chartData, maxDate, maxTrips, maxQty) {
+            let data = google.visualization.arrayToDataTable(chartData);
+            let options = {
+                title: 'Dispatch Trips and Quantity',
+                hAxis: { title: 'Date', titleTextStyle: { color: '#333' } },
+                vAxis: { minValue: 0 },
+                legend: { position: 'top' },
+                chartArea: { width: '80%', height: '70%' },
+                colors: ['#1E90FF', '#FF8C00']
+            };
+            
+            let chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+            
+            document.getElementById('highest').innerHTML = `Highest Dispatch on <b>${maxDate}</b> - Trips: <b>${maxTrips}</b>, Total Qty: <b>${maxQty}</b>`;
+        }
+    </script>
+</body>
+</html>
