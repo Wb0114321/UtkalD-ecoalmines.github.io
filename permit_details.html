@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #c2e6f1; /* Light Gray Background */
+            background-color: #c2e6f1;
             text-align: center;
             padding: 10px;
         }
@@ -16,7 +16,7 @@
             color: #333;
         }
         .logo {
-            width: 300px; /* Logo Size */
+            width: 300px;
             height: 60px;
             margin-bottom: 20px;
         }
@@ -38,23 +38,23 @@
             color: white;
         }
         .status-completed {
-            background-color: #90EE90; /* Light Green */
+            background-color: #90EE90;
         }
         .status-running {
-            background-color: #FFFF99; /* Light Yellow */
+            background-color: #FFFF99;
         }
     </style>
 </head>
 <body>
     <h2>Utkal D and Utkal E Coal Mines Fy 2025-26 Permit Report</h2>
+    <h3>(Managed & Operated by Mythri Infra And mining India Pvt. Ltd. in Collaboration with NALCO)</h3>
 
-        <!-- Centered Logo -->
-        <div class="logo-container">
-            <img src="https://github.com/Wb0114321/UtkalD-ecoalmines.github.io/blob/main/image/nalco-logo.png?raw=true" 
-                 alt="Nalco Logo" 
-                 style="max-width: 400px; height: auto;">
-        </div>
-    </header>
+    <div class="logo-container">
+        <img src="https://github.com/Wb0114321/UtkalD-ecoalmines.github.io/blob/main/image/nalco-logo.png?raw=true" 
+             alt="Nalco Logo" 
+             style="max-width: 400px; height: auto;">
+    </div>
+
     <table id="data-table">
         <thead>
             <tr>
@@ -67,10 +67,9 @@
                 <th>Credit Date</th>
                 <th>Expire Date</th>
                 <th>Status</th>
-                <th>Remarks</th>
                 <th>Total Credit</th>
                 <th>Total Lifted</th>
-                <th>Balance</th>
+                <th>Total Balance</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -80,23 +79,35 @@
         async function fetchGoogleSheet() {
             const sheetId = "1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g";
             const apiKey = "AIzaSyCAb2w8YjJEpUbjjC04X6CgUPh1r5QIvhc"; 
-            const range = "Permit Details Fy 2025-26!A1:M"; 
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                const tableBody = document.querySelector("#data-table tbody");
-                tableBody.innerHTML = ""; // Purane rows clear karne ke liye
+            const dataRange = "Permit Details Fy 2025-26!A1:J";
+  
+            const remarksRange = "Permit Details Fy 2025-26!K2:L3";
+            const totalLiftedRange = "Permit Details Fy 2025-26!M2:N3";
+            const totalCreditRange = "Permit Details Fy 2025-26!O2:P3";
 
-                data.values.slice(1).forEach(row => {
+            try {
+                const [dataResponse, remarksResponse, liftedResponse, creditResponse] = await Promise.all([
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${dataRange}?key=${apiKey}`),
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${remarksRange}?key=${apiKey}`),
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalLiftedRange}?key=${apiKey}`),
+                    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalCreditRange}?key=${apiKey}`)
+                ]);
+
+                const data = await dataResponse.json();
+                const remarks = await remarksResponse.json();
+                const totalLifted = await liftedResponse.json();
+                const totalCredit = await creditResponse.json();
+
+                const tableBody = document.querySelector("#data-table tbody");
+                tableBody.innerHTML = "";
+
+                data.values.slice(1).forEach((row, rowIndex) => {
                     let tr = document.createElement("tr");
 
                     row.forEach((cell, index) => {
                         let td = document.createElement("td");
                         td.textContent = cell;
 
-                        // Status column ka index (maan lo 9th column hai, index 8 hota hai)
                         if (index === 8) {
                             let statusText = cell.toLowerCase();
                             if (statusText === "completed") {
@@ -109,6 +120,21 @@
                         tr.appendChild(td);
                     });
 
+                    // Remarks Column (Old Total Credit Column)
+                    let remarksTd = document.createElement("td");
+                    remarksTd.textContent = remarks.values[rowIndex] ? remarks.values[rowIndex].join(" | ") : "";
+                    tr.appendChild(remarksTd);
+
+                    // Total Lifted Column (M2:N3)
+                    let totalLiftedTd = document.createElement("td");
+                    totalLiftedTd.textContent = totalLifted.values[rowIndex] ? totalLifted.values[rowIndex].join(" | ") : "";
+                    tr.appendChild(totalLiftedTd);
+
+                    // Total Credit Column (Old Balance Column)
+                    let totalCreditTd = document.createElement("td");
+                    totalCreditTd.textContent = totalCredit.values[rowIndex] ? totalCredit.values[rowIndex].join(" | ") : "";
+                    tr.appendChild(totalCreditTd);
+
                     tableBody.appendChild(tr);
                 });
             } catch (error) {
@@ -117,7 +143,7 @@
         }
         
         fetchGoogleSheet();
-        setInterval(fetchGoogleSheet, 5000); // Auto-refresh har 5 sec me
+        setInterval(fetchGoogleSheet, 5000);
     </script>
 </body>
 </html>
