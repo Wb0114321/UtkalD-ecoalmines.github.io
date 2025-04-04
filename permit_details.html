@@ -3,178 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTKAL D AND UTKAL E COAL MINE PERMIT DETAILS FY 2024-25 NEW TARGET </title>
+    <title>Google Sheet Data</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #c2e6f1; /* Light Gray Background */
             text-align: center;
+            padding: 10px;
+        }
+        h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .logo {
+            width: 300px; /* Logo Size */
+            height: 60px;
+            margin-bottom: 20px;
         }
         table {
-            width: 90%;
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
+            border: 1px solid black;
+            padding: 8px;
             text-align: center;
         }
         th {
-            background: #007bff;
+            background-color: #4CAF50;
             color: white;
         }
-        /* Floating Boxes */
-        .floating-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .status-completed {
+            background-color: #90EE90; /* Light Green */
         }
-        .floating-box {
-            width: 200px;
-            height: 100px;
-            background: #007bff;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            cursor: move;
+        .status-running {
+            background-color: #FFFF99; /* Light Yellow */
         }
     </style>
 </head>
 <body>
-    <h1>UTKAL D AND UTKAL E COAL MINE PERMIT DETAILS FY 2024-25 NEW TARGET </h1>
-    <table id="sheetData">
+    <h2>Utkal D and Utkal E Coal Mines Fy 2025-26 Permit Report</h2>
+    <img src="C:/Users/yadav/Desktop/utkal web page/nalco-logo.png" alt="Nalco Logo" class="logo">
+    
+    <table id="data-table">
         <thead>
             <tr>
-                <th>S/No</th>
-                <th>Total Credit Permit List</th>
+                <th>S/no</th>
+                <th>Total Credit Permit list</th>
                 <th>Credit Qty</th>
+                <th>Grade</th>
                 <th>Lifted Qty</th>
                 <th>Balance Qty</th>
                 <th>Credit Date</th>
                 <th>Expire Date</th>
                 <th>Status</th>
                 <th>Remarks</th>
+                <th>Total Credit</th>
+                <th>Total Lifted</th>
+                <th>Balance</th>
             </tr>
         </thead>
-        <tbody>
-        </tbody>
+        <tbody></tbody>
     </table>
 
-    <div class="floating-container">
-        <div class="floating-box" id="creditBox">Credit Qty: 0 MT</div>
-        <div class="floating-box" id="liftedBox">Lifted Qty: 0 MT</div>
-        <div class="floating-box" id="balanceBox">Balance Qty: 0 MT</div>
-    </div>
-
     <script>
-        async function fetchGoogleSheetData() {
+        async function fetchGoogleSheet() {
             const sheetId = "1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g";
-            const apiKey = "AIzaSyCNBAbS7PYlfFQoRfhA65hM7og8aU3iUqU";
-            const range = "Fy 2025-26!H:P";
+            const apiKey = "AIzaSyCAb2w8YjJEpUbjjC04X6CgUPh1r5QIvhc"; 
+            const range = "Permit Details Fy 2025-26!A1:M"; 
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-
+            
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                const rows = data.values;
+                const tableBody = document.querySelector("#data-table tbody");
+                tableBody.innerHTML = ""; // Purane rows clear karne ke liye
 
-                if (rows.length > 0) {
-                    const tableBody = document.querySelector("#sheetData tbody");
-                    tableBody.innerHTML = "";
+                data.values.slice(1).forEach(row => {
+                    let tr = document.createElement("tr");
 
-                    let totalCreditQty = 0;
-                    let totalLiftedQty = 0;
-                    let totalBalanceQty = 0;
+                    row.forEach((cell, index) => {
+                        let td = document.createElement("td");
+                        td.textContent = cell;
 
-                    for (let i = 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        const tr = document.createElement("tr");
-
-                        row.forEach((cell, index) => {
-                            const td = document.createElement("td");
-                            td.textContent = cell;
-                            
-                            // Status Color Logic
-                            if (index === 7) { // Status Column
-                                if (cell.trim().toUpperCase() === "COMPLETED") {
-                                    td.style.backgroundColor = "green";
-                                    td.style.color = "white";
-                                } else if (cell.trim().toUpperCase() === "RUNNING") {
-                                    td.style.backgroundColor = "lightyellow";
-                                    td.style.color = "black";
-                                }
+                        // Status column ka index (maan lo 9th column hai, index 8 hota hai)
+                        if (index === 8) {
+                            let statusText = cell.toLowerCase();
+                            if (statusText === "completed") {
+                                td.classList.add("status-completed");
+                            } else if (statusText === "running") {
+                                td.classList.add("status-running");
                             }
+                        }
 
-                            tr.appendChild(td);
+                        tr.appendChild(td);
+                    });
 
-                            // Sum Calculation
-                            if (index === 2) { // Credit Qty (Column J)
-                                totalCreditQty += parseFloat(cell.replace("MT", "").trim()) || 0;
-                            }
-                            if (index === 3) { // Lifted Qty (Column K)
-                                totalLiftedQty += parseFloat(cell.replace("MT", "").trim()) || 0;
-                            }
-                            if (index === 4) { // Balance Qty (Column L)
-                                totalBalanceQty += parseFloat(cell.replace("MT", "").trim()) || 0;
-                            }
-                        });
-
-                        tableBody.appendChild(tr);
-                    }
-
-                    // Update Floating Boxes
-                    document.getElementById("creditBox").innerHTML = `Credit Qty: ${totalCreditQty.toFixed(2)} MT`;
-                    document.getElementById("liftedBox").innerHTML = `Lifted Qty: ${totalLiftedQty.toFixed(2)} MT`;
-                    document.getElementById("balanceBox").innerHTML = `Balance Qty: ${totalBalanceQty.toFixed(2)} MT`;
-                }
+                    tableBody.appendChild(tr);
+                });
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         }
-
-        fetchGoogleSheetData();
-
-        // Drag Functionality for Floating Boxes
-        const makeDraggable = (element) => {
-            let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
-
-            const onMouseMove = (event) => {
-                event.preventDefault();
-                posX = mouseX - event.clientX;
-                posY = mouseY - event.clientY;
-                mouseX = event.clientX;
-                mouseY = event.clientY;
-                element.style.top = `${element.offsetTop - posY}px`;
-                element.style.left = `${element.offsetLeft - posX}px`;
-            };
-
-            const onMouseUp = () => {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            };
-
-            element.onmousedown = (event) => {
-                event.preventDefault();
-                mouseX = event.clientX;
-                mouseY = event.clientY;
-                document.onmousemove = onMouseMove;
-                document.onmouseup = onMouseUp;
-            };
-        };
-
-        makeDraggable(document.getElementById("creditBox"));
-        makeDraggable(document.getElementById("liftedBox"));
-        makeDraggable(document.getElementById("balanceBox"));
+        
+        fetchGoogleSheet();
+        setInterval(fetchGoogleSheet, 5000); // Auto-refresh har 5 sec me
     </script>
 </body>
 </html>
