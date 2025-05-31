@@ -37,12 +37,6 @@
         td {
             background-color: #f2f2f2;
         }
-        td.file-path {
-            max-width: 11ch;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
         .green {
             background-color: #28a745;
             color: white;
@@ -92,12 +86,6 @@
                 <th>Contact No</th>
                 <th class="column-wide">Un Laden Weight</th>
                 <th class="column-wide">Loaden Weight</th>
-                <th class="column-wide">Fitness Valid up to</th>
-                <th class="column-wide">Tax Valid up to</th>
-                <th class="column-wide">Insurance Valid up to</th>
-                <th class="column-wide">PUCC Valid up to</th>
-                <th class="column-wide">Permit Valid up to</th>
-                <th class="file-path">File Path PDF</th>
                 <th>GPS Installed Status</th>
                 <th>Active Status</th>
             </tr>
@@ -116,8 +104,8 @@
     </div>
 
     <script>
-        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';  // Your Google Sheet ID
-        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
+        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA';
+        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';
 
         function fetchData() {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
@@ -137,32 +125,27 @@
                     let transportCounts = {};
                     let totalVehicles = 0;
 
-                    for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
+                    for (let i = 1; i < rows.length; i++) {
                         const row = rows[i];
                         const newRow = table.insertRow();
-
                         totalVehicles++;
 
-                        const transportName = row[3]; // Column D (Transport Name)
-                        if (transportCounts[transportName]) {
-                            transportCounts[transportName]++;
-                        } else {
-                            transportCounts[transportName] = 1;
-                        }
+                        const transportName = row[3];
+                        transportCounts[transportName] = (transportCounts[transportName] || 0) + 1;
+
+                        const keepColumns = [0, 1, 2, 3, 4, 5, 6, 13, 14];
 
                         for (let j = 0; j < row.length; j++) {
+                            if (!keepColumns.includes(j)) continue;
+
                             const cell = newRow.insertCell();
                             cell.textContent = row[j];
 
-                            if ([7, 8, 9, 10, 11].includes(j)) { // Expiry date fields
-                                const date = new Date(row[j]);
-                                if (date < new Date()) {
-                                    cell.classList.add('red');
-                                    cell.title = 'Expired!';
-                                }
+                            if ([5, 6].includes(j)) {
+                                cell.classList.add('column-wide');
                             }
 
-                            if (j === 13) {  // GPS Installed Status (Column 14)
+                            if (j === 13) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'INSTALLED') {
                                     cell.classList.add('green');
@@ -173,7 +156,7 @@
                                 }
                             }
 
-                            if (j === 14) {  // Active Status (Column 15)
+                            if (j === 14) {
                                 const status = row[j].toUpperCase();
                                 if (status === 'ACTIVE') {
                                     cell.classList.add('green');
@@ -182,14 +165,6 @@
                                     cell.classList.add('red');
                                     totalNotActive++;
                                 }
-                            }
-
-                            if ([5, 6, 7, 8, 9, 10, 11].includes(j)) { // Wide columns for dates and weights
-                                cell.classList.add('column-wide');
-                            }
-
-                            if (j === 12) { // File Path PDF
-                                cell.classList.add('file-path');
                             }
                         }
 
