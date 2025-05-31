@@ -1,199 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Data</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        #banner {
-            background-color: #007bff;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        td {
-            background-color: #f2f2f2;
-        }
-        .green {
-            background-color: #28a745;
-            color: white;
-        }
-        .red {
-            background-color: #dc3545;
-            color: white;
-        }
-        #summary {
-            margin-top: 20px;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 15px;
-            margin-top: 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .column-wide {
-            min-width: 17ch;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    #banner {
+      background-color: #007bff;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: white;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    td {
+      background-color: #f2f2f2;
+    }
+    .green {
+      background-color: #28a745;
+      color: white;
+    }
+    .red {
+      background-color: #dc3545;
+      color: white;
+    }
+    #summary {
+      margin-top: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 15px;
+      margin-top: 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #007bff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .button:hover {
+      background-color: #0056b3;
+    }
+    .column-wide {
+      min-width: 17ch;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 </head>
 <body>
-    <div id="banner">
-        Total Transporters: <span id="totalTransporters"></span>, Total Vehicles: <span id="totalVehicles"></span>
-    </div>
-    <h1>Vehicle Data</h1>
-    <a href="transporter.html" class="button">View Transporter Vehicles</a>
-    <a href="transporter_summary.html" class="button" target="_blank">Transporter Summary</a>
-    <button class="button" id="exportButton">Export to Excel</button>
-    <table id="vehicleData">
-        <thead>
-            <tr>
-                <th>Vehicle Number</th>
-                <th>Wheel</th>
-                <th>Ag. No</th>
-                <th>Name Of Transport</th>
-                <th>Contact No</th>
-                <th class="column-wide">Un Laden Weight</th>
-                <th class="column-wide">Loaden Weight</th>
-                <th>GPS Installed Status</th>
-                <th>Active Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data from Google Sheets will be inserted here -->
-        </tbody>
-    </table>
+  <div id="banner">
+    Total Transporters: <span id="totalTransporters">0</span>, Total Vehicles: <span id="totalVehicles">0</span>
+  </div>
+  <h1>Vehicle Data</h1>
+  <a href="transporter.html" class="button">View Transporter Vehicles</a>
+  <a href="transporter_summary.html" class="button" target="_blank">Transporter Summary</a>
+  <button class="button" id="exportButton">Export to Excel</button>
+  <table id="vehicleData">
+    <thead>
+      <tr>
+        <th>Vehicle Number</th>
+        <th>Wheel</th>
+        <th>Ag. No</th>
+        <th>Name Of Transport</th>
+        <th>Contact No</th>
+        <th class="column-wide">Un Laden Weight</th>
+        <th class="column-wide">Loaden Weight</th>
+        <th>GPS Installed Status</th>
+        <th>Active Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data will be inserted here -->
+    </tbody>
+  </table>
 
-    <div id="summary">
-        <p><strong>Total Entries:</strong> <span id="totalEntries"></span></p>
-        <p><strong>Total Installed:</strong> <span id="totalInstalled"></span></p>
-        <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled"></span></p>
-        <p><strong>Total Active:</strong> <span id="totalActive"></span></p>
-        <p><strong>Total Not Active:</strong> <span id="totalNotActive"></span></p>
-    </div>
+  <div id="summary">
+    <p><strong>Total Entries:</strong> <span id="totalEntries">0</span></p>
+    <p><strong>Total Installed:</strong> <span id="totalInstalled">0</span></p>
+    <p><strong>Total Not Installed:</strong> <span id="totalNotInstalled">0</span></p>
+    <p><strong>Total Active:</strong> <span id="totalActive">0</span></p>
+    <p><strong>Total Not Active:</strong> <span id="totalNotActive">0</span></p>
+  </div>
 
-    <script>
-        const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Google Sheet ID
-        const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Your API Key
+  <script>
+    const sheetID = '1ZPgjRlPruFAXoLfFFotEoEMC1EdKgyGxvskXT4X3ElA'; // Replace with your actual Sheet ID
+    const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s'; // Replace with your API key
 
-        function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+    function fetchData() {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const rows = data.values;
+          const table = document.getElementById('vehicleData').getElementsByTagName('tbody')[0];
 
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    const rows = data.values;
-                    const table = document.getElementById('vehicleData').getElementsByTagName('tbody')[0];
+          let totalEntries = 0;
+          let totalInstalled = 0;
+          let totalNotInstalled = 0;
+          let totalActive = 0;
+          let totalNotActive = 0;
+          let totalVehicles = 0;
 
-                    let totalEntries = 0;
-                    let totalInstalled = 0;
-                    let totalNotInstalled = 0;
-                    let totalActive = 0;
-                    let totalNotActive = 0;
+          let transportCounts = {};
 
-                    let transportCounts = {};
-                    let totalVehicles = 0;
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
 
-                    for (let i = 1; i < rows.length; i++) {
-                        const row = rows[i];
-                        const newRow = table.insertRow();
-                        totalVehicles++;
+            // Pad missing cells
+            while (row.length < 9) {
+              row.push('');
+            }
 
-                        const transportName = row[3];
-                        if (transportCounts[transportName]) {
-                            transportCounts[transportName]++;
-                        } else {
-                            transportCounts[transportName] = 1;
-                        }
+            const newRow = table.insertRow();
+            totalVehicles++;
 
-                        for (let j = 0; j <= 8; j++) {
-                            const cell = newRow.insertCell();
-                            cell.textContent = row[j];
+            const transportName = row[3];
+            if (transportCounts[transportName]) {
+              transportCounts[transportName]++;
+            } else {
+              transportCounts[transportName] = 1;
+            }
 
-                            if (j === 7) {  // GPS Installed Status
-                                const status = row[j].toUpperCase();
-                                if (status === 'INSTALLED') {
-                                    cell.classList.add('green');
-                                    totalInstalled++;
-                                } else if (status === 'NOT INSTALLED') {
-                                    cell.classList.add('red');
-                                    totalNotInstalled++;
-                                }
-                            }
+            for (let j = 0; j <= 8; j++) {
+              const cell = newRow.insertCell();
+              cell.textContent = row[j];
 
-                            if (j === 8) {  // Active Status
-                                const status = row[j].toUpperCase();
-                                if (status === 'ACTIVE') {
-                                    cell.classList.add('green');
-                                    totalActive++;
-                                } else if (status === 'NOT ACTIVE') {
-                                    cell.classList.add('red');
-                                    totalNotActive++;
-                                }
-                            }
+              if (j === 7) { // GPS Status
+                const status = row[j].toUpperCase();
+                if (status === 'INSTALLED') {
+                  cell.classList.add('green');
+                  totalInstalled++;
+                } else if (status === 'NOT INSTALLED') {
+                  cell.classList.add('red');
+                  totalNotInstalled++;
+                }
+              }
 
-                            if ([5, 6].includes(j)) {
-                                cell.classList.add('column-wide');
-                            }
-                        }
+              if (j === 8) { // Active Status
+                const status = row[j].toUpperCase();
+                if (status === 'ACTIVE') {
+                  cell.classList.add('green');
+                  totalActive++;
+                } else if (status === 'NOT ACTIVE') {
+                  cell.classList.add('red');
+                  totalNotActive++;
+                }
+              }
 
-                        totalEntries++;
-                    }
+              if ([5, 6].includes(j)) {
+                cell.classList.add('column-wide');
+              }
+            }
 
-                    document.getElementById('totalEntries').textContent = totalEntries;
-                    document.getElementById('totalInstalled').textContent = totalInstalled;
-                    document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
-                    document.getElementById('totalActive').textContent = totalActive;
-                    document.getElementById('totalNotActive').textContent = totalNotActive;
+            totalEntries++;
+          }
 
-                    document.getElementById('totalVehicles').textContent = totalVehicles;
-                    document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
+          document.getElementById('totalEntries').textContent = totalEntries;
+          document.getElementById('totalInstalled').textContent = totalInstalled;
+          document.getElementById('totalNotInstalled').textContent = totalNotInstalled;
+          document.getElementById('totalActive').textContent = totalActive;
+          document.getElementById('totalNotActive').textContent = totalNotActive;
 
-                    localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
+          document.getElementById('totalVehicles').textContent = totalVehicles;
+          document.getElementById('totalTransporters').textContent = Object.keys(transportCounts).length;
 
-        document.getElementById('exportButton').addEventListener('click', function () {
-            const table = document.getElementById('vehicleData');
-            const wb = XLSX.utils.table_to_book(table, { sheet: 'Vehicle Data' });
-            XLSX.writeFile(wb, 'vehicle_data.xlsx');
+          localStorage.setItem('transportCounts', JSON.stringify(transportCounts));
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
         });
+    }
 
-        window.onload = fetchData;
-    </script>
+    document.getElementById('exportButton').addEventListener('click', function () {
+      const table = document.getElementById('vehicleData');
+      const wb = XLSX.utils.table_to_book(table, { sheet: 'Vehicle Data' });
+      XLSX.writeFile(wb, 'vehicle_data.xlsx');
+    });
+
+    window.onload = fetchData;
+  </script>
 </body>
 </html>
