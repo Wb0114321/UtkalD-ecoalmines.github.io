@@ -120,7 +120,7 @@
         const apiKey = 'AIzaSyDV0TQQ_dVAzs9pXb4KBN9xJkrM4q7Tv2s';  // Your API key
 
         function fetchData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet_?key=${apiKey}`;
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Mainsheet?key=${apiKey}`;
 
             fetch(url)
                 .then(response => response.json())
