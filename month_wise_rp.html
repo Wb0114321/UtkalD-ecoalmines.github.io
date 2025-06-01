@@ -48,61 +48,71 @@
   </div>
 
   <script>
-    const data = [
-      { Month: "Apr", Trips: 7614, Qty: 263069.590 },
-      { Month: "May", Trips: 10676, Qty: 365002.480 },
-      { Month: "Jun", Trips: "", Qty: "" },
-      { Month: "Jul", Trips: "", Qty: "" },
-      { Month: "Aug", Trips: "", Qty: "" },
-      { Month: "Sep", Trips: "", Qty: "" },
-      { Month: "Oct", Trips: "", Qty: "" },
-      { Month: "Nov", Trips: "", Qty: "" },
-      { Month: "Dec", Trips: "", Qty: "" },
-      { Month: "Jan", Trips: "", Qty: "" },
-      { Month: "Feb", Trips: "", Qty: "" },
-      { Month: "Mar", Trips: "", Qty: "" },
-      { Month: "Total", Trips: 18290, Qty: 628072.070 }
-    ];
+    const spreadsheetId = '1rUQKjHpdTKMun3tCqdKj_2bTDOc2vA-DKXhgPHz8X3g';
+    const apiKey = 'AIzaSyCAb2w8YjJEpUbjjC04X6CgUPh1r5QIvhc'; // Replace with your actual API key
+    const sheetName = 'Month Wise I3ms Data';
+    const range = 'H1:J14';
 
     const tableBody = document.getElementById("tableBody");
     const monthFilter = document.getElementById("monthFilter");
 
-    // Find highest values (excluding Total and blanks)
-    const validData = data.filter(row => row.Month !== "Total" && row.Trips && row.Qty);
-    const maxTrips = Math.max(...validData.map(row => parseFloat(row.Trips)));
-    const maxQty = Math.max(...validData.map(row => parseFloat(row.Qty)));
+    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!${range}?key=${apiKey}`)
+      .then(response => response.json())
+      .then(data => {
+        const rows = data.values;
+        const headers = rows[0];
+        const dataRows = rows.slice(1);
 
-    function renderTable(month) {
-      tableBody.innerHTML = "";
+        // Convert data to objects
+        const dataObjects = dataRows.map(row => {
+          return {
+            Month: row[0],
+            Trips: row[1],
+            Qty: row[2]
+          };
+        });
 
-      data.forEach(row => {
-        if (month === "All" || row.Month === month || row.Month === "Total") {
-          let highlightClass = "";
+        // Find highest Trips and Qty
+        const numericData = dataObjects.filter(row => row.Month !== 'total' && row.Trips && row.Qty);
+        const maxTrips = Math.max(...numericData.map(row => parseFloat(row.Trips)));
+        const maxQty = Math.max(...numericData.map(row => parseFloat(row.Qty)));
 
-          if (
-            row.Trips == maxTrips ||
-            row.Qty == maxQty
-          ) {
-            highlightClass = "bg-yellow-200 font-bold shadow-inner";
-          }
+        function renderTable(month) {
+          tableBody.innerHTML = "";
 
-          const tr = document.createElement("tr");
-          tr.className = `hover:bg-indigo-50 transition-all ${highlightClass}`;
-          tr.innerHTML = `
-            <td class="p-3 border-b">${row.Month}</td>
-            <td class="p-3 border-b">${row.Trips || ""}</td>
-            <td class="p-3 border-b">${row.Qty || ""}</td>
-          `;
-          tableBody.appendChild(tr);
+          dataObjects.forEach(row => {
+            if (month === "All" || row.Month === month || row.Month === "total") {
+              let highlightClass = "";
+
+              if (
+                parseFloat(row.Trips) === maxTrips ||
+                parseFloat(row.Qty) === maxQty
+              ) {
+                highlightClass = "bg-yellow-200 font-bold shadow-inner";
+              }
+
+              const tr = document.createElement("tr");
+              tr.className = `hover:bg-indigo-50 transition-all ${highlightClass}`;
+              tr.innerHTML = `
+                <td class="p-3 border-b">${row.Month}</td>
+                <td class="p-3 border-b">${row.Trips || ""}</td>
+                <td class="p-3 border-b">${row.Qty || ""}</td>
+              `;
+              tableBody.appendChild(tr);
+            }
+          });
         }
+
+        monthFilter.addEventListener("change", () => {
+          renderTable(monthFilter.value);
+        });
+
+        renderTable("All");
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        tableBody.innerHTML = '<tr><td colspan="3" class="p-3 text-red-500">Error loading data.</td></tr>';
       });
-    }
-
-    monthFilter.addEventListener("change", () => {
-      renderTable(monthFilter.value);
-    });
-
-    renderTable("All");
   </script>
 </body>
 </html>
