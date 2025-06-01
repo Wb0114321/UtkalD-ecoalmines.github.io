@@ -1,133 +1,74 @@
-/* General Body Styling */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f2f2f2; /* Subtle light background color */
-    color: #333;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  color: #333;
 }
 
-/* Header Styles */
 header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px 0;
-    text-align: center;
+  background: #ffffff;
+  padding: 20px;
+  text-align: center;
+  border-bottom: 2px solid #ccc;
 }
 
-header .logo-container {
-    background-color: #fff; /* White background for logo container */
-    padding: 10px; /* Padding around the logo */
-    border-radius: 10px; /* Rounded corners */
-    display: inline-block;
+.logo-container img {
+  max-width: 300px;
+  height: auto;
 }
 
-header .logo {
-    max-width: 200px; /* Adjusted logo size */
-    height: auto;
+main {
+  padding: 30px;
 }
 
-/* Home Banner Section */
 .home-banner {
-    background-color: #c7f375; /* Light green background for the banner */
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(172, 104, 228, 0.1);
-    text-align: center;
+  text-align: center;
 }
 
-.home-banner h1 {
-    font-size: 2.5rem;
-    color: #4CAF50;
-    margin-bottom: 20px;
-}
-
-.home-banner p {
-    font-size: 1.2rem;
-    margin-bottom: 40px;
-    color: #555;
-}
-
-/* Options Section */
-.options {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+  padding: 10px;
 }
 
 .option {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 20px;
-    text-align: center;
-    border-radius: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.option:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px solid #004080;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .option h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #004080;
 }
 
-.option p {
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-/* Button Styling */
 .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #004080;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
 }
 
 .btn:hover {
-    background-color: #45a049;
+  background-color: #0066cc;
 }
 
-/* Back to Home Button */
 .back-home {
-    margin-top: 40px;
+  margin-top: 40px;
 }
 
-.back-home .btn {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 30px;
-}
-
-.back-home .btn:hover {
-    background-color: #555;
-}
-
-/* Footer Styles */
 footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 15px 0;
-}
-
-/* Media Query for Mobile Responsiveness */
-@media (max-width: 768px) {
-    .home-banner {
-        padding: 20px;
-    }
+  text-align: center;
+  padding: 15px;
+  background-color: #ddd;
+  margin-top: 40px;
+  font-size: 14px;
 }
